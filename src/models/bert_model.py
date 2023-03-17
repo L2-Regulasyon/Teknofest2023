@@ -70,6 +70,7 @@ class BertModel(BaseModel):
 
         num_train_steps = int(len(train_texts) / self.batch_size * self.epochs)
         num_warmup_steps = num_train_steps * self.warmup_ratio
+        scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=num_warmup_steps, num_training_steps=num_train_steps)
 
         total_epochs = []
         epoch_val_score = []
@@ -86,13 +87,13 @@ class BertModel(BaseModel):
                 loss = outputs.loss
                 loss.backward()
                 optimizer.step()
-                # scheduler.step()
+                scheduler.step()
                 running_loss += loss.item()
                 # if i % 50 == 49:  # Print every 50 batches
                 #     print(f'Epoch {epoch + 1}, Batch {i + 1}/{len(train_loader)}, Loss: {running_loss / 50:.4f}')
                 #     running_loss = 0.0
+            
             # Evaluate on validation set
-
             val_accuracy, val_f1 = self.evaluate(x_val, y_val)
             epoch_val_score.append(val_f1)
             time.sleep(0.5)

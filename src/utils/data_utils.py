@@ -15,7 +15,7 @@ def update_zoo(zoo_dict, new_member):
 
 
 def read_model_zoo():
-    f = open(ZOO_PATH,)
+    f = open(ZOO_PATH)
     zoo = json.load(f)
     return zoo
 

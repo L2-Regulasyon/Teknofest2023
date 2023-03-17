@@ -89,6 +89,96 @@
                         "f1-score": 0.7931615783085734,
                         "support": 12411
                   }
+            },
+            "dbmdz/bert-base-turkish-128k-uncased | epochs: 1 | batch_size: 32 | max_len: 128": {
+                  "INSULT": {
+                        "precision": 0.8741537236160892,
+                        "recall": 0.917258671124112,
+                        "f1-score": 0.8951876019575856,
+                        "support": 2393
+                  },
+                  "OTHER": {
+                        "precision": 0.9578096947935368,
+                        "recall": 0.907312925170068,
+                        "f1-score": 0.9318777292576419,
+                        "support": 3528
+                  },
+                  "PROFANITY": {
+                        "precision": 0.9628990509059534,
+                        "recall": 0.9393939393939394,
+                        "f1-score": 0.9510012782275246,
+                        "support": 2376
+                  },
+                  "RACIST": {
+                        "precision": 0.9292161520190024,
+                        "recall": 0.9621249385145105,
+                        "f1-score": 0.9453842435959401,
+                        "support": 2033
+                  },
+                  "SEXIST": {
+                        "precision": 0.9344262295081968,
+                        "recall": 0.9586737145603076,
+                        "f1-score": 0.9463946869070209,
+                        "support": 2081
+                  },
+                  "accuracy": 0.9329626943840141,
+                  "macro avg": {
+                        "precision": 0.9317009701685558,
+                        "recall": 0.9369528377525876,
+                        "f1-score": 0.9339691079891427,
+                        "support": 12411
+                  },
+                  "weighted avg": {
+                        "precision": 0.9340494746159563,
+                        "recall": 0.9329626943840141,
+                        "f1-score": 0.9331110392440671,
+                        "support": 12411
+                  }
+            },
+            "dbmdz/bert-base-turkish-128k-uncased | epochs: 3 | batch_size: 32 | max_len: 128": {
+                  "INSULT": {
+                        "precision": 0.9009046052631579,
+                        "recall": 0.9155871291266193,
+                        "f1-score": 0.9081865284974093,
+                        "support": 2393
+                  },
+                  "OTHER": {
+                        "precision": 0.9663084519314551,
+                        "recall": 0.9430272108843537,
+                        "f1-score": 0.9545258929852244,
+                        "support": 3528
+                  },
+                  "PROFANITY": {
+                        "precision": 0.9579478553406223,
+                        "recall": 0.9587542087542088,
+                        "f1-score": 0.9583508624316366,
+                        "support": 2376
+                  },
+                  "RACIST": {
+                        "precision": 0.9549854791868344,
+                        "recall": 0.970486965076242,
+                        "f1-score": 0.9626738228836301,
+                        "support": 2033
+                  },
+                  "SEXIST": {
+                        "precision": 0.9550669216061185,
+                        "recall": 0.9601153291686689,
+                        "f1-score": 0.9575844716031632,
+                        "support": 2081
+                  },
+                  "accuracy": 0.9481105470953187,
+                  "macro avg": {
+                        "precision": 0.9470426626656376,
+                        "recall": 0.9495941686020186,
+                        "f1-score": 0.9482643156802129,
+                        "support": 12411
+                  },
+                  "weighted avg": {
+                        "precision": 0.9483574882078314,
+                        "recall": 0.9481105470953187,
+                        "f1-score": 0.9481708588842432,
+                        "support": 12411
+                  }
             }
       }
 }
