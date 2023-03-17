@@ -1,6 +1,7 @@
-from .base_model import BaseModel
 from sklearn.feature_extraction.text import TfidfVectorizer
 from lightgbm import LGBMClassifier
+
+from .base_model import BaseModel
 
 
 class TfidfModel(BaseModel):

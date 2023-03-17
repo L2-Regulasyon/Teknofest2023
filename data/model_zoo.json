@@ -44,6 +44,51 @@
                         "f1-score": 0.6678903422095736,
                         "support": 12411
                   }
+            },
+            "sentence-transformers/paraphrase-multilingual-mpnet-base-v2 Embeddings + LGB": {
+                  "INSULT": {
+                        "precision": 0.6875,
+                        "recall": 0.7170915169243627,
+                        "f1-score": 0.7019840458171405,
+                        "support": 2393
+                  },
+                  "OTHER": {
+                        "precision": 0.842572658772874,
+                        "recall": 0.8874716553287982,
+                        "f1-score": 0.8644395361678631,
+                        "support": 3528
+                  },
+                  "PROFANITY": {
+                        "precision": 0.7316253674926502,
+                        "recall": 0.7331649831649831,
+                        "f1-score": 0.732394366197183,
+                        "support": 2376
+                  },
+                  "RACIST": {
+                        "precision": 0.8113522537562604,
+                        "recall": 0.7171667486473192,
+                        "f1-score": 0.7613577023498694,
+                        "support": 2033
+                  },
+                  "SEXIST": {
+                        "precision": 0.8906481939633845,
+                        "recall": 0.8649687650168189,
+                        "f1-score": 0.8776206728425159,
+                        "support": 2081
+                  },
+                  "accuracy": 0.7934090725968899,
+                  "macro avg": {
+                        "precision": 0.7927396947970339,
+                        "recall": 0.7839727338164565,
+                        "f1-score": 0.7875592646749143,
+                        "support": 12411
+                  },
+                  "weighted avg": {
+                        "precision": 0.794379480850658,
+                        "recall": 0.7934090725968899,
+                        "f1-score": 0.7931615783085734,
+                        "support": 12411
+                  }
             }
       }
 }

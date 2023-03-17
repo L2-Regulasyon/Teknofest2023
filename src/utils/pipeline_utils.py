@@ -11,7 +11,15 @@ def run_cv(model_obj,
            experiment_name="NONAME",
            add_to_zoo=False):
 
-    print(f"\nCV Training started on '{fold_col}' splits!\n")
+    print()
+    print("*"*30)
+    print("Started CV Training")
+    print("*"*30)
+    print(f"Experiment: '{experiment_name}'")
+    print(f"Fold: '{fold_col}'")
+    print(f"Update Zoo: '{add_to_zoo}'")
+    print("*"*30)
+    print()
 
     for fold_id in tqdm(sorted(input_df[fold_col].unique()), desc="Training.. Fold"):
         X_train = input_df[input_df[fold_col] != fold_id][x_col]
@@ -26,10 +34,12 @@ def run_cv(model_obj,
 
         input_df.loc[val_idx, "pred"] = preds
 
-    print()
+    print("\nTraining finished! Result:\n")
+
     print(classification_report(input_df["target"],
                                 input_df["pred"],
-                                output_dict=False))
+                                output_dict=False,
+                                digits=4))
     if add_to_zoo:
         zoo_member_dict = {fold_col: {experiment_name: classification_report(input_df["target"], input_df["pred"],
                                                                              output_dict=True)}}
