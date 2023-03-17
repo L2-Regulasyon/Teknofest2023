@@ -12,3 +12,5 @@ TARGET_DICT = {'OTHER': 0,
                'SEXIST': 2,
                'RACIST': 3,
                'INSULT': 4}
+
+TARGET_INV_DICT = {TARGET_DICT[key]: key for key in TARGET_DICT.keys()}

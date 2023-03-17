@@ -10,8 +10,9 @@ from models.embedding_gbdt_model import EmbeddingGBDTModel
 
 def main(args):
     df = read_training_data()
-    run_cv(model_obj=EmbeddingGBDTModel(model_path=args.embedding_model_path,
-                                        batch_size=args.batch_size),
+    run_cv(model_obj=EmbeddingGBDTModel,
+           model_params={"model_path": args.embedding_model_path,
+                         "batch_size": args.batch_size},
            input_df=df,
            fold_col=args.fold_name,
            x_col=args.xcol,

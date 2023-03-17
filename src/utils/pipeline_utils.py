@@ -1,15 +1,17 @@
 from tqdm.auto import tqdm
 from sklearn.metrics import classification_report
 from .data_utils import read_model_zoo, write_model_zoo, update_zoo
-
+from .constants import TARGET_INV_DICT
 
 def run_cv(model_obj,
+           model_params,
            input_df,
            fold_col,
            x_col,
            y_col,
            experiment_name="NONAME",
-           add_to_zoo=False):
+           add_to_zoo=False,
+           is_nn=False):
 
     print()
     print("*"*30)
@@ -29,8 +31,17 @@ def run_cv(model_obj,
 
         val_idx = y_val.index.tolist()
 
-        model_obj.train(X_train, y_train)
-        preds = model_obj.predict(X_val)
+        model = model_obj(**model_params)
+
+        if is_nn:
+            model.train(X_train, y_train, X_val, y_val)
+        else:
+            model.train(X_train, y_train)
+
+        preds = model.predict(X_val)
+
+        for pred_i, pred in enumerate(preds):
+            preds[pred_i] = TARGET_INV_DICT[pred] if pred in [0, 1, 2, 3, 4] else pred
 
         input_df.loc[val_idx, "pred"] = preds
 

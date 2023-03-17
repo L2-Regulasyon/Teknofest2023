@@ -10,7 +10,8 @@ from models.tfidf_model import TfidfModel
 
 def main(args):
     df = read_training_data()
-    run_cv(model_obj=TfidfModel(),
+    run_cv(model_obj=TfidfModel,
+           model_params={},
            input_df=df,
            fold_col=args.fold_name,
            x_col=args.xcol,
