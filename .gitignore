@@ -2,3 +2,4 @@
 .idea
 
 data/raw/teknofest_train_final.csv
+data/processed/data.csv
