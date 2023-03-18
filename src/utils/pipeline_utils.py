@@ -1,4 +1,5 @@
 from tqdm.auto import tqdm
+import pandas as pd
 from sklearn.metrics import classification_report
 from .data_utils import read_model_zoo, write_model_zoo, update_zoo
 from .constants import TARGET_INV_DICT
