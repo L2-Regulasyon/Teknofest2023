@@ -4,15 +4,29 @@ from .data_utils import read_model_zoo, write_model_zoo, update_zoo
 from .constants import TARGET_INV_DICT
 
 def run_cv(model_obj,
-           model_params,
-           input_df,
-           fold_col,
-           x_col,
-           y_col,
-           experiment_name="NONAME",
-           add_to_zoo=False,
-           is_nn=False):
-
+           model_params:dict,
+           input_df: pd.DataFrame,
+           fold_col: str,
+           x_col: str,
+           y_col: str,
+           experiment_name: str="NONAME",
+           add_to_zoo: bool=False,
+           is_nn: bool=False):
+    
+    """
+    Run the selected model, evaluate the results and save the experiment to the model zoo if selected.
+    
+    ---------
+    :param model_obj: Model class
+    :param model_params: Model paramaters, may vary depending on model architecture.
+    :param input_df: Competition train dataframe with CV folds.
+    :fold_col: Fold column name. There are two types of fold schema: Public(public_fold) and Private(private_fold).
+    :x_col: Text feature column.
+    :y_col: Target column.
+    :experiment_name: If the model is to be saved in the model zoo, this parameter must be a unique string: 'dbmdz/bert-base-turkish-128k-uncased | epochs: 3 | batch_size: 32 | max_len: 128', e.g. 
+    :add_to_zoo: Add to the model zoo for model tracking.
+    :is_nn: If the model comes from NN based approach, set true.
+    """
     print()
     print("*"*30)
     print("Started CV Training")

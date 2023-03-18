@@ -35,6 +35,15 @@ def assign_split_ids(input_df: pd.DataFrame,
                      fold_name: str,
                      fold_count: int,
                      seed: int):
+    """
+    Split data for training and evaluation purposes.
+    
+    ---------
+    :param input_df: Competition dataframe with text and labels.
+    :param fold_name: Fold column name to be assigned.
+    :param fold_count: Split count for cross-validation.
+    :return: Competition dataframe with local or private CV folds.
+    """
     skf = StratifiedKFold(n_splits=fold_count, shuffle=True, random_state=seed)
     splits = list(skf.split(input_df, input_df["target"]))
     input_df[fold_name] = 0
