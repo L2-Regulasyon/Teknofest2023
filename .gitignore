@@ -6,3 +6,4 @@ data/raw/teknofest_train_final.csv
 data/processed/data.csv
 src/checkpoints/*
 catboost_info
+temp_fasttext_train.txt
