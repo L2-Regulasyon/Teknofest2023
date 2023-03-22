@@ -4,3 +4,4 @@ __pycache__/
 data/test_model_zoo.json
 data/raw/teknofest_train_final.csv
 data/processed/data.csv
+src/checkpoints/*

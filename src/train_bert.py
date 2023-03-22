@@ -15,7 +15,9 @@ def main(args):
                          "epochs": args.epochs,
                          "batch_size": args.batch_size,
                          "tokenizer_max_len": args.tokenizer_max_len,
-                         "learning_rate": args.learning_rate
+                         "learning_rate": args.learning_rate,
+                         "warmup_ratio": args.warmup_ratio,
+                         "mlm_pretrain": False
                          },
            input_df=df,
            fold_col=args.fold_name,
@@ -31,10 +33,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-model-path', type=str, default="dbmdz/bert-base-turkish-128k-uncased")
-    parser.add_argument('-batch-size', type=int, default=128)
-    parser.add_argument('-tokenizer-max-len', type=int, default=32)
+    parser.add_argument('-batch-size', type=int, default=32)
+    parser.add_argument('-tokenizer-max-len', type=int, default=64)
     parser.add_argument('-learning-rate', type=float, default=7e-5)
     parser.add_argument('-epochs', type=int, default=3)
+    parser.add_argument('-warmup-ratio', type=float, default=0.1)
+    parser.add_argument('--mlm-pretrain', action='store_true')
 
     parser.add_argument('-fold-name', type=str, default="public_fold")
     parser.add_argument('-xcol', type=str, default="text")
