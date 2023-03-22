@@ -17,7 +17,7 @@ def main(args):
                          "tokenizer_max_len": args.tokenizer_max_len,
                          "learning_rate": args.learning_rate,
                          "warmup_ratio": args.warmup_ratio,
-                         "mlm_pretrain": False
+                         "mlm_pretrain": args.mlm_pretrain
                          },
            input_df=df,
            fold_col=args.fold_name,

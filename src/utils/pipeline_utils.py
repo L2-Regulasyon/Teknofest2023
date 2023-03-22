@@ -2,7 +2,7 @@ from tqdm.auto import tqdm
 import pandas as pd
 from sklearn.metrics import classification_report
 from .data_utils import read_model_zoo, write_model_zoo, update_zoo
-from .constants import TARGET_INV_DICT
+from .constants import TARGET_INV_DICT, TARGET_DICT
 
 def run_cv(model_obj,
            model_params:dict,
@@ -38,6 +38,8 @@ def run_cv(model_obj,
     print("*"*30)
     print()
 
+    input_df["target"] = input_df["target"].map(TARGET_DICT)
+
     for fold_id in tqdm(sorted(input_df[fold_col].unique()), desc="Training.. Fold"):
         X_train = input_df[input_df[fold_col] != fold_id][x_col]
         y_train = input_df[input_df[fold_col] != fold_id][y_col]
@@ -61,6 +63,8 @@ def run_cv(model_obj,
         input_df.loc[val_idx, "pred"] = preds
 
     print("\nTraining finished! Result:\n")
+
+    input_df["target"] = input_df["target"].map(TARGET_INV_DICT)
 
     print(classification_report(input_df["target"],
                                 input_df["pred"],

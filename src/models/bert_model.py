@@ -103,6 +103,12 @@ class BertModel(BaseModel):
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+    def save(self, path: str):
+        self.model.save_pretrained(path)
+        self.tokenizer.save_pretrained(path)
+
+
+
     def train_mlm(self,
                   x_train):
         set_seed(42)
