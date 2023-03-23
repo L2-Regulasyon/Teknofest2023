@@ -6,7 +6,6 @@ import argparse
 from utils.data_utils import read_training_data
 from utils.pipeline_utils import run_cv
 from models.embedding_stack_model import EmbeddingStackModel
-from models.bert_model import BertModel
 
 from lightgbm import LGBMClassifier
 from xgboost import XGBClassifier
@@ -30,7 +29,7 @@ def main(args):
                            "random_state": 1337}
     elif args.head_model == "svc":
         model_class = SVC
-        head_model_args = {}
+        head_model_args = {"probability": True}
 
     retrain_arg = " (Fine-Tuned)" if args.retrain_embed_model else " (Vanilla)"
 

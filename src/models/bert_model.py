@@ -270,6 +270,7 @@ class BertModel(BaseModel):
         self.model.eval()
 
         all_preds = []
+        all_probas = []
         with torch.no_grad():
             for batch in test_loader:
                 input_ids, attention_mask = batch
@@ -277,10 +278,12 @@ class BertModel(BaseModel):
                 attention_mask = attention_mask.to(self.device)
                 outputs = self.model(input_ids, attention_mask=attention_mask)
                 logits = outputs.logits
+                probas = torch.nn.functional.softmax(logits)
                 predictions = torch.argmax(logits, dim=1)
                 all_preds.extend(predictions.cpu().numpy())
+                all_probas.extend(probas.cpu().numpy())
 
-        return all_preds
+        return all_preds, all_probas
 
     def evaluate(self, x_val, y_val):
         val_texts = x_val.to_list()  # list of validation texts
@@ -301,6 +304,7 @@ class BertModel(BaseModel):
         self.model.eval()
         total_correct = 0
         all_preds = []
+        all_probas = []
         all_labels = []
         with torch.no_grad():
             for batch in val_loader:
@@ -310,9 +314,11 @@ class BertModel(BaseModel):
                 labels = labels.to(self.device)
                 outputs = self.model(input_ids, attention_mask=attention_mask)
                 logits = outputs.logits
+                probas = torch.nn.functional.softmax(logits)
                 predictions = torch.argmax(logits, dim=1)
                 total_correct += torch.sum(predictions == labels)
                 all_preds.extend(predictions.cpu().numpy())
+                all_probas.extend(probas.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
         accuracy = total_correct / len(val_loader.dataset)
         f1 = f1_score(all_labels, all_preds, average='macro')

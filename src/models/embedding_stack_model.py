@@ -47,5 +47,6 @@ class EmbeddingStackModel(BaseModel):
                                              convert_to_tensor=False,
                                              batch_size=32)
         pred = self.head_model.predict(x_test).flatten().tolist()
+        pred_proba = self.head_model.predict_proba(x_test)
 
-        return pred
+        return pred, pred_proba

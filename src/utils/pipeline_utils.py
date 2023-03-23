@@ -2,7 +2,7 @@ from tqdm.auto import tqdm
 import pandas as pd
 from sklearn.metrics import classification_report
 from .data_utils import read_model_zoo, write_model_zoo, update_zoo
-from .constants import TARGET_INV_DICT, TARGET_DICT
+from .constants import TARGET_INV_DICT, TARGET_DICT, MODEL_CV_RESULT_PATH
 
 def run_cv(model_obj,
            model_params:dict,
@@ -55,7 +55,8 @@ def run_cv(model_obj,
         else:
             model.train(X_train, y_train)
 
-        preds = model.predict(X_val)
+        preds, pred_probas = model.predict(X_val)
+        input_df.loc[val_idx, TARGET_DICT.keys()] = pred_probas
 
         for pred_i, pred in enumerate(preds):
             preds[pred_i] = TARGET_INV_DICT[pred] if pred in [0, 1, 2, 3, 4] else pred
@@ -70,6 +71,10 @@ def run_cv(model_obj,
                                 input_df["pred"],
                                 output_dict=False,
                                 digits=4))
+
+    input_df.to_csv(f"{MODEL_CV_RESULT_PATH}/{experiment_name.replace('/', '-')}_OOF.csv",
+                    index=False)
+
     if add_to_zoo:
         zoo_member_dict = {fold_col: {experiment_name: classification_report(input_df["target"], input_df["pred"],
                                                                              output_dict=True)}}

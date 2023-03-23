@@ -32,7 +32,7 @@ def main(args):
                            "random_state": 1337}
     elif args.head_model == "svc":
         model_class = SVC
-        head_model_args = {}
+        head_model_args = {"probability": True}
 
     if args.vector_model == "fasttext":
         vect_model_class = "fasttext"
