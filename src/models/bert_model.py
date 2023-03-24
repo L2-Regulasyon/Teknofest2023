@@ -191,7 +191,8 @@ class BertModel(BaseModel):
                                   batch_size=self.batch_size,
                                   shuffle=True,
                                   num_workers=0,
-                                  pin_memory=False)
+                                  pin_memory=False,
+                                  drop_last=True)
 
         optimizer = torch.optim.Adam(self.model.parameters(),
                                      lr=self.learning_rate)

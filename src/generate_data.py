@@ -6,6 +6,8 @@ from sklearn.model_selection import StratifiedKFold
 
 from utils.constants import TARGET_DICT
 
+FOLD_CNT = 5
+
 # %%
 df = pd.read_csv("../data/raw/teknofest_train_final.csv",
                  sep="|")
@@ -51,8 +53,8 @@ def assign_split_ids(input_df: pd.DataFrame,
         input_df.loc[split[1], fold_name] = split_id
 
 
-assign_split_ids(input_df=df, fold_name="public_fold", fold_count=5, seed=1337)
-assign_split_ids(input_df=df, fold_name="private_fold", fold_count=5, seed=42)
+assign_split_ids(input_df=df, fold_name="public_fold", fold_count=FOLD_CNT, seed=1337)
+assign_split_ids(input_df=df, fold_name="private_fold", fold_count=FOLD_CNT, seed=42)
 
 # %%
 # Export
