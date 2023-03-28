@@ -258,7 +258,7 @@ class BertModel(BaseModel):
         cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) ** (1 / 3))).items())).values())
         cls_weights /= min(cls_weights)
         # cls_weights = np.ones(5)
-        print(cls_weights)
+        print("Class weights:", cls_weights)
 
         if self.mlm_pretrain:
             self.train_mlm(x_train)
