@@ -1,14 +1,17 @@
 import os
 import time
+import pandas as pd
 
 from sklearn.metrics import f1_score
+from sklearn.model_selection import StratifiedKFold
+
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM
 from transformers import DataCollatorForLanguageModeling
 from transformers import Trainer, TrainingArguments
 from transformers import get_cosine_schedule_with_warmup
-
+from transformers import AdamW
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:21"
 
 from .base_model import BaseModel
@@ -19,29 +22,77 @@ import torch
 import numpy as np
 import os, random
 
-CE_LOSS_OBJ = torch.nn.CrossEntropyLoss(reduction="none")
+
+def get_optimizer_grouped_parameters(
+    model, model_type,
+    learning_rate, weight_decay,
+    layerwise_learning_rate_decay
+):
+    no_decay = ["bias", "LayerNorm.weight"]
+    # initialize lr for task specific layer
+    optimizer_grouped_parameters = [
+        {
+            "params": [p for n, p in model.named_parameters() if "classifier" in n or "pooler" in n],
+            "weight_decay": 0.0,
+            "lr": learning_rate,
+        },
+    ]
+    # initialize lrs for every layer
+    layers = [getattr(model, model_type).embeddings] + list(getattr(model, model_type).encoder.layer)
+    layers.reverse()
+    lr = learning_rate
+    for layer in layers:
+        lr *= layerwise_learning_rate_decay
+        optimizer_grouped_parameters += [
+            {
+                "params": [p for n, p in layer.named_parameters() if not any(nd in n for nd in no_decay)],
+                "weight_decay": weight_decay,
+                "lr": lr,
+            },
+            {
+                "params": [p for n, p in layer.named_parameters() if any(nd in n for nd in no_decay)],
+                "weight_decay": 0.0,
+                "lr": lr,
+            },
+        ]
+    return optimizer_grouped_parameters
 
 
-def adjust_lr(optimizer, epoch):
-    lr = 4e-6
+def get_llrd_optimizer_scheduler(model, learning_rate=1e-5, weight_decay=0.01,
+                                 layerwise_learning_rate_decay=0.95, num_warmup_steps=0,
+                                 num_training_steps=10):
+    grouped_optimizer_params = get_optimizer_grouped_parameters(
+        model, 'bert',
+        learning_rate, weight_decay,
+        layerwise_learning_rate_decay
+    )
+    optimizer = AdamW(
+        grouped_optimizer_params,
+        lr=learning_rate,
+        # eps=1e-6,
+        correct_bias=True
+    )
+    scheduler = get_cosine_schedule_with_warmup(
+        optimizer,
+        num_warmup_steps=num_warmup_steps,
+        num_training_steps=num_training_steps
+    )
+    return optimizer, scheduler
 
-    optimizer.param_groups[0]['lr'] = lr
-    optimizer.param_groups[1]['lr'] = 100 * lr
 
-    return lr
-
-
-def get_optimizer(net):
-    params = [x[1] for x in filter(lambda kv: "backbone" in kv[0], net.named_parameters())]
-    arc_weight = [x[1] for x in filter(lambda kv: "backbone" not in kv[0], net.named_parameters())]
-
-    optimizer = torch.optim.Adam([{"params": params}, {"params": arc_weight}], lr=4e-6, betas=(0.9, 0.999),
-                                 eps=1e-08)
-    return optimizer
-
-
-def ohem_loss(preds, labels):
+def ohem_loss(preds, labels, weights, label_smoothing=0.05, epochnum=0):
+    CE_LOSS_OBJ = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor(weights).cuda(),
+                                            reduction="none",
+                                            label_smoothing=label_smoothing
+                                            )
     losses = CE_LOSS_OBJ(preds, labels)
+    # if epochnum == 0:
+    #     k = len(losses) // 2
+    # elif epochnum == 1:
+    #     k = len(losses) // 2
+    # elif epochnum == 2:
+    #     k = len(losses) // 2
+
     top_losses, _ = torch.topk(losses, k=len(losses) // 2)
     return top_losses.mean()
 
@@ -82,6 +133,30 @@ class MLMDataset(Dataset):
         return self.examples[i]
 
 
+class StratifiedBatchSampler:
+    """Stratified batch sampling
+    Provides equal representation of target classes in each batch
+    """
+    def __init__(self, y, batch_size, shuffle=True):
+        if torch.is_tensor(y):
+            y = y.numpy()
+        assert len(y.shape) == 1, 'label array must be 1D'
+        self.n_batches = int(len(y) / batch_size)
+        self.skf = StratifiedKFold(n_splits=self.n_batches, shuffle=shuffle, random_state=1337)
+        self.X = torch.randn(len(y), 1).numpy()
+        self.y = y
+        self.shuffle = shuffle
+
+    def __iter__(self):
+        if self.shuffle:
+            self.skf.random_state = torch.randint(0,int(1e8),size=()).item()
+        for train_idx, test_idx in self.skf.split(self.X, self.y):
+            yield test_idx
+
+    def __len__(self):
+        return self.n_batches
+
+
 class BertModel(BaseModel):
     def __init__(self,
                  model_path='sentence-transformers/paraphrase-multilingual-mpnet-base-v2',
@@ -90,7 +165,12 @@ class BertModel(BaseModel):
                  learning_rate=5e-5,
                  epochs=5,
                  warmup_ratio=0.1,
-                 mlm_pretrain=False):
+                 weight_decay=0.01,
+                 llrd_decay=0.95,
+                 label_smoothing=0.05,
+                 grad_clip=1.0,
+                 mlm_pretrain=False,
+                 mlm_probability=0.15):
 
         super().__init__()
         self.model_path = model_path
@@ -99,15 +179,19 @@ class BertModel(BaseModel):
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.warmup_ratio = warmup_ratio
+        self.weight_decay = weight_decay
+        self.llrd_decay = llrd_decay
+        self.label_smoothing = label_smoothing
+        self.grad_clip = grad_clip
+
         self.mlm_pretrain = mlm_pretrain
+        self.mlm_probability = mlm_probability
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def save(self, path: str):
         self.model.save_pretrained(path)
         self.tokenizer.save_pretrained(path)
-
-
 
     def train_mlm(self,
                   x_train):
@@ -119,7 +203,7 @@ class BertModel(BaseModel):
         model.to(self.device)
 
         data_collator = DataCollatorForLanguageModeling(
-            tokenizer=tokenizer, mlm=True, mlm_probability=0.15
+            tokenizer=tokenizer, mlm=True, mlm_probability=self.mlm_probability
         )
 
         dataset = MLMDataset(tokenizer=tokenizer,
@@ -131,9 +215,9 @@ class BertModel(BaseModel):
         training_args = TrainingArguments(
             output_dir=model_save_path,
             save_strategy="no",
-            learning_rate=5e-6,
+            learning_rate=1e-5,
             overwrite_output_dir=True,
-            num_train_epochs=8,
+            num_train_epochs=1,
             per_gpu_train_batch_size=16,
             prediction_loss_only=True,
         )
@@ -162,6 +246,20 @@ class BertModel(BaseModel):
 
         set_seed(42)
 
+        # ext_df = pd.read_csv("turkish_bullying_dataset.csv")
+        # ext_df = ext_df[ext_df.label == 0].reset_index(drop=True)
+        # ext_df["target"] = 0
+        # x_train_ext = ext_df["text"].str.lower()
+        # y_train_ext = ext_df["target"]
+        #
+        # x_train = pd.concat([x_train, x_train_ext], ignore_index=True)
+        # y_train = pd.concat([y_train, y_train_ext], ignore_index=True)
+
+        cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) ** (1 / 3))).items())).values())
+        cls_weights /= min(cls_weights)
+        # cls_weights = np.ones(5)
+        print(cls_weights)
+
         if self.mlm_pretrain:
             self.train_mlm(x_train)
             model_path = "./checkpoints/mlm_model"
@@ -188,29 +286,27 @@ class BertModel(BaseModel):
             torch.tensor(train_labels))
 
         train_loader = DataLoader(train_dataset,
-                                  batch_size=self.batch_size,
-                                  shuffle=True,
+                                  batch_sampler=StratifiedBatchSampler(y_train,
+                                                                       batch_size=self.batch_size,
+                                                                       shuffle=True),
                                   num_workers=0,
                                   pin_memory=False,
-                                  drop_last=True)
-
-        optimizer = torch.optim.Adam(self.model.parameters(),
-                                     lr=self.learning_rate)
-
-        # optimizer = get_optimizer(self.model)
-        scaler = torch.cuda.amp.GradScaler()
+                                  )
 
         num_train_steps = int(len(train_texts) / self.batch_size * self.epochs)
         num_warmup_steps = num_train_steps * self.warmup_ratio
 
-        scheduler = get_cosine_schedule_with_warmup(optimizer,
-                                                    num_warmup_steps=num_warmup_steps,
-                                                    num_training_steps=num_train_steps)
+        optimizer, scheduler = get_llrd_optimizer_scheduler(self.model,
+                                                            learning_rate=self.learning_rate,
+                                                            weight_decay=self.weight_decay,
+                                                            layerwise_learning_rate_decay=self.llrd_decay,
+                                                            num_warmup_steps=num_warmup_steps,
+                                                            num_training_steps=num_train_steps)
+
+        scaler = torch.cuda.amp.GradScaler()
 
         for epoch in range(self.epochs):
             self.model.train()
-
-            # adjust_lr(optimizer, epoch)
 
             running_loss = 0.0
             optimizer.zero_grad()
@@ -223,22 +319,21 @@ class BertModel(BaseModel):
 
                 with torch.cuda.amp.autocast():
                     outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-                    loss = ohem_loss(outputs.logits, labels.squeeze(-1))
-                    # outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-                    # loss = outputs.loss
+                    loss = ohem_loss(outputs.logits,
+                                     labels.squeeze(-1),
+                                     weights=cls_weights,
+                                     label_smoothing=self.label_smoothing,
+                                     epochnum=epoch)
 
                 loss = loss / n_batches
                 scaler.scale(loss).backward()
 
                 if ((i + 1) % n_batches) == 0:
                     scaler.unscale_(optimizer)
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
                     scaler.step(optimizer)
                     scaler.update()
                     optimizer.zero_grad()
-
-                # loss.backward()
-                # optimizer.step()
 
                 scheduler.step()
                 running_loss += loss.item()

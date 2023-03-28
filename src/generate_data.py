@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from utils.constants import TARGET_DICT
+from utils.preprocess_utils import preprocess_text
 
 FOLD_CNT = 5
 
@@ -24,8 +25,8 @@ df = df[~((df.target != 'OTHER') & (df.is_offensive == 0))]
 df = df.reset_index(drop=True)
 
 # %%
-# Uncased conversion
-df["text"] = df["text"].str.lower()
+# Preprocessing
+df["text"] = preprocess_text(df["text"])
 
 # %%
 # Label Encoding

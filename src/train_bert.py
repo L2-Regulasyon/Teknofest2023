@@ -17,7 +17,12 @@ def main(args):
                          "tokenizer_max_len": args.tokenizer_max_len,
                          "learning_rate": args.learning_rate,
                          "warmup_ratio": args.warmup_ratio,
-                         "mlm_pretrain": args.mlm_pretrain
+                         "weight_decay": args.weight_decay,
+                         "llrd_decay": args.llrd_decay,
+                         "label_smoothing": args.label_smoothing,
+                         "grad_clip": args.grad_clip,
+                         "mlm_pretrain": args.mlm_pretrain,
+                         "mlm_probability": args.mlm_probability
                          },
            input_df=df,
            fold_col=args.fold_name,
@@ -35,10 +40,17 @@ if __name__ == "__main__":
     parser.add_argument('-model-path', type=str, default="dbmdz/bert-base-turkish-128k-uncased")
     parser.add_argument('-batch-size', type=int, default=32)
     parser.add_argument('-tokenizer-max-len', type=int, default=64)
+
     parser.add_argument('-learning-rate', type=float, default=7e-5)
     parser.add_argument('-epochs', type=int, default=3)
     parser.add_argument('-warmup-ratio', type=float, default=0.1)
+    parser.add_argument('-weight-decay', type=float, default=0.01)
+    parser.add_argument('-llrd-decay', type=float, default=0.95)
+    parser.add_argument('-label-smoothing', type=float, default=0.05)
+    parser.add_argument('-grad-clip', type=float, default=1.0)
+
     parser.add_argument('--mlm-pretrain', action='store_true')
+    parser.add_argument('-mlm-probability', type=float, default=0.15)
 
     parser.add_argument('-fold-name', type=str, default="public_fold")
     parser.add_argument('-xcol', type=str, default="text")
