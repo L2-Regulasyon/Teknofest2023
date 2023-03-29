@@ -3,6 +3,22 @@
 
 ---
 
-### Çözüm Mimarisi ve Kullanılan Teknolojiler
+### Nihai Çözüm Mimarisi ve Kullanılan Teknolojiler
+
+---
+
+#### 1. Kullanılan Teknolojiler
+
+##### Yazılım:
+- Lorem 1
+- Lorem 2
+
+##### Donanım:
+- Lorem 1
+- Lorem 2
+
+---
+
+#### 2. Nihai Çözüm Mimarisi
 
 Lorem ipsum

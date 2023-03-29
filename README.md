@@ -7,9 +7,9 @@ Bu kütüphane, L2 Regülasyon takımının `TeknoFest 2023` yarışması `Aşa�
 
 ### Teknik Dökümanlar
 Bu döküman sadece repository'nin kullanımına dair yönergeleri içermektedir. Aşağıdaki listeden ilgili bölümlere ait daha detaylı dökümanlara ulaşabilirsiniz.
-- [Eğitim / Validasyon / Servis tasarım detayları](src/PIPELINE.md)
-- [Denenen modeller ve sonuçları](src/models/MODELS.md)
-- [Final çözümde kullanılan mimari ve teknolojiler](SOLUTION.md)
+- [Çözüm Geliştirme Süreci Detayları](src/README.md)
+- [Denenen Modeller ve Sonuçları](src/models/README.md)
+- [Nihai Çözüm Mimarisi ve Kullanılan Teknolojiler](SOLUTION.md)
 
 ---
 
@@ -43,4 +43,4 @@ python NLPEvaluation_L2_Regulasyon.py
 ```
 
 ### 5. Eğitim ve analiz kodlarının çalıştırılması (Opsiyonel)
-İlgili süreçlere [buradan](src/PIPELINE.md) ulaşabilirsiniz.
+İlgili süreçlere [buradan](src/README.md) ulaşabilirsiniz.
