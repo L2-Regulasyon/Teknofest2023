@@ -1,7 +1,6 @@
-FROM nvcr.io/nvidia/pytorch:23.01-py3
-RUN export contver=1.0
-RUN pip3 install --upgrade gradio \
-seaborn \
+FROM nvcr.io/nvidia/pytorch:22.12-py3
+RUN export contver=1.03
+RUN pip3 install --upgrade \
 scikit-learn \
 ipywidgets \
 polars \
@@ -10,3 +9,6 @@ lightgbm \
 transformers \
 datasets \
 sentence-transformers \
+zemberek-python \
+gradio \
+seaborn

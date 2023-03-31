@@ -51,7 +51,7 @@ def run_cv(model_obj,
         model = model_obj(**model_params)
 
         if is_nn:
-            model.train(X_train, y_train, X_val, y_val)
+            model.train(X_train, y_train, X_val, y_val, fold_id=fold_id)
         else:
             model.train(X_train, y_train)
 

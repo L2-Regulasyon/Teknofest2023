@@ -24,10 +24,15 @@ import os, random
 
 
 def get_optimizer_grouped_parameters(
-    model, model_type,
+    model,
     learning_rate, weight_decay,
     layerwise_learning_rate_decay
 ):
+    model_type = model.config.model_type
+
+    if "roberta" in model.config.model_type:
+        model_type = "roberta"
+
     no_decay = ["bias", "LayerNorm.weight"]
     # initialize lr for task specific layer
     optimizer_grouped_parameters = [
@@ -62,7 +67,7 @@ def get_llrd_optimizer_scheduler(model, learning_rate=1e-5, weight_decay=0.01,
                                  layerwise_learning_rate_decay=0.95, num_warmup_steps=0,
                                  num_training_steps=10):
     grouped_optimizer_params = get_optimizer_grouped_parameters(
-        model, 'bert',
+        model,
         learning_rate, weight_decay,
         layerwise_learning_rate_decay
     )
@@ -160,10 +165,11 @@ class StratifiedBatchSampler:
 class BertModel(BaseModel):
     def __init__(self,
                  model_path='sentence-transformers/paraphrase-multilingual-mpnet-base-v2',
-                 tokenizer_max_len=128,
-                 batch_size=16,
-                 learning_rate=5e-5,
-                 epochs=5,
+                 auth_token=None,
+                 tokenizer_max_len=64,
+                 batch_size=32,
+                 learning_rate=7e-5,
+                 epochs=3,
                  warmup_ratio=0.1,
                  weight_decay=0.01,
                  llrd_decay=0.95,
@@ -174,6 +180,7 @@ class BertModel(BaseModel):
 
         super().__init__()
         self.model_path = model_path
+        self.auth_token = auth_token
         self.tokenizer_max_len = tokenizer_max_len
         self.batch_size = batch_size
         self.learning_rate = learning_rate
@@ -188,6 +195,19 @@ class BertModel(BaseModel):
         self.mlm_probability = mlm_probability
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+    def load(self):
+
+        self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path,
+                                                                        use_auth_token=self.auth_token,
+                                                                        num_labels=5)
+        self.model.to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path,
+                                                       use_auth_token=self.auth_token,
+                                                       ignore_mismatched_sizes=True,
+                                                       add_prefix_space=True)
+
 
     def save(self, path: str):
         self.model.save_pretrained(path)
@@ -242,9 +262,29 @@ class BertModel(BaseModel):
               y_train,
               x_val,
               y_val,
-              n_batches=1):
+              n_batches=1,
+              fold_id="none"):
 
         set_seed(42)
+
+        # def flatten(l):
+        #     return [item for sublist in l for item in sublist]
+        #
+        # ext_df = pd.read_csv("bilkent.csv")
+        # print(ext_df.text.values)
+        # masked_sents = [[sent for sent in str(sents).split(".") if (
+        #     ("kadın" in sent) or ("sen" in sent)
+        # )] for sents in ext_df.text.values]
+        # masked_sents = flatten(masked_sents)
+        # print(len(masked_sents))
+        #
+        # ext_df = ext_df[ext_df.label == 0].reset_index(drop=True)
+        # ext_df["target"] = 0
+        # x_train_ext = ext_df["text"].str.lower()
+        # y_train_ext = ext_df["target"]
+        #
+        # x_train = pd.concat([x_train, x_train_ext], ignore_index=True)
+        # y_train = pd.concat([y_train, y_train_ext], ignore_index=True)
 
         # ext_df = pd.read_csv("turkish_bullying_dataset.csv")
         # ext_df = ext_df[ext_df.label == 0].reset_index(drop=True)
@@ -254,6 +294,7 @@ class BertModel(BaseModel):
         #
         # x_train = pd.concat([x_train, x_train_ext], ignore_index=True)
         # y_train = pd.concat([y_train, y_train_ext], ignore_index=True)
+
 
         cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) ** (1 / 3))).items())).values())
         cls_weights /= min(cls_weights)
@@ -347,11 +388,16 @@ class BertModel(BaseModel):
             print(
                 f'Epoch {epoch + 1}, Validation Accuracy: {val_accuracy:.5f}, Validation F1-Macro: {val_f1:.5f}')
 
+        fold_id = fold_id if (fold_id != "none") else ""
+        self.save(f"./checkpoints/final_model_fold{fold_id}")
+
     def predict(self,
                 x_test):
-
         test_texts = x_test.to_list()  # list of validation texts
-        test_encodings = self.tokenizer(test_texts, truncation=True, padding=True, max_length=self.tokenizer_max_len)
+        test_encodings = self.tokenizer(test_texts,
+                                        truncation=True,
+                                        padding=True,
+                                        max_length=self.tokenizer_max_len)
 
         test_dataset = TensorDataset(
             torch.tensor(test_encodings['input_ids']),
@@ -368,7 +414,7 @@ class BertModel(BaseModel):
         all_preds = []
         all_probas = []
         with torch.no_grad():
-            for batch in test_loader:
+            for batch in tqdm(test_loader):
                 input_ids, attention_mask = batch
                 input_ids = input_ids.to(self.device)
                 attention_mask = attention_mask.to(self.device)
