@@ -8,7 +8,7 @@ Bu kütüphane, L2 Regülasyon takımının `TeknoFest 2023` yarışması `Aşa�
 ### Teknik Dökümanlar
 Bu döküman sadece repository'nin kullanımına dair yönergeleri içermektedir. Aşağıdaki listeden ilgili bölümlere ait daha detaylı dökümanlara ulaşabilirsiniz.
 - [Çözüm Geliştirme Süreci Detayları](src/README.md)
-- [Denenen Modeller ve Sonuçları](src/models/README.md)
+- [Denenen Modeller/Yaklaşımlar ve Sonuçları](src/models/README.md)
 - [Nihai Çözüm Mimarisi ve Kullanılan Teknolojiler](SOLUTION.md)
 
 ---
