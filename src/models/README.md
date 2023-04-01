@@ -34,10 +34,18 @@ Aşağıda tahminleme süreci boyunca denemiş olduğumuz embedding modeller ve 
 Lorem ipsum
 
 #### 1.1. TFIDF
-Lorem ipsum
+TF-IDF, bir belgedeki (corpus) her bir kelimenin değerlerini, belirli bir belgedeki kelimenin sıklığı ile kelimenin göründüğü belgelerin yüzdesinin tersiyle hesaplar. Temel olarak, TF-IDF, belirli bir belgede kelimelerin göreceli sıklığını, bu kelimenin tüm veri seti üzerindeki tersine oranına göre belirleyerek çalışır. Sezgisel olarak, bu hesaplama, belirli bir kelimenin belirli bir belge ile ne kadar alakalı olduğunu belirler. Tek veya küçük bir belge grubunda ortak olan kelimeler genel kelimelerden daha yüksek TFIDF numaralarına sahip olma eğilimindedir.[(Kaynak)](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547)
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229319826-1fedf02c-a2d7-485a-8cb0-782cbdb75b3e.png" width="400"/>
+</p>
 
 #### 1.2. FastText
-Lorem ipsum
+FastText 2016 yılında Facebook tarafından geliştirilen Word2Vec tabanlı bir modeldir. Bu yöntemin Word2Vec’ten farkı, kelimelerin ngramlara ayrılmasıdır. Böylece Word2Vec ile yakalanamayan anlam yakınlığı bu yöntemle yakalanabilir. [(Kaynak)](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547)
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229319555-81cd444f-a478-44ac-85b9-d8cd596e5231.png" width="800"/>
+</p>
 
 #### 1.3. BERT Backbone
 Model listesi:
