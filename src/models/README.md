@@ -3,6 +3,17 @@
 
 ---
 
+### Literatür Taraması
+
+Aşağılayıcı söylemleri sınıflandırma görevi için literatürde farklı yaklaşımlar öneren birçok yayın bulunmaktadır. Yarışma süresince yararlandığımız kaynaklar listelenmiştir.   
+
+[Aken B. V., Risch J. Krestel R. ve Löser A., 2018](https://arxiv.org/abs/1809.07572) `Other, Toxic, Obscene, Insult, Identity Hate, Severe Toxic ve Threat` sınıflarını tahmin etmek için yaptıkları çalışmada en iyi skoru`(F1:0.783)` ile `Bidirectional GRU Attention (FastText)` modeli ile elde etmişlerdir. Ancak kullandıkları diğer modellerde de skorların benzer olduğu gözlemlenmiştir.
+
+[Duchêne C., Jamet H., Guillaume P. ve Dehak R., 2023](https://arxiv.org/abs/2301.11125) `Toxicity, Obscene, Sexual Explict, Identity Attack, Insult ve Threat` sınıflarının tahmini için `BERT, RNN, XLNET` altyapılarını kullanan modeller ile denemeler yapmışlardır ve bütün bu modellerin benzer sonuçlar verdiğini vurgulamışlardır. Nihai olarak; `Focall Loss` ile eğitilmiş `RoBERTa` modeli AUROC ve F1 olarak en iyi sonucu veren model olmuştur. 
+
+### Denenen Dış Veriler
+
+
 ### Denenen Modeller
 
 Aşağıda tahminleme süreci boyunca denemiş olduğumuz embedding modeller ve final sınıflandırma katmanları listelenmiştir.
