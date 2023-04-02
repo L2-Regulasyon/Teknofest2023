@@ -32,6 +32,42 @@ StratifiedBatchSampler kullanırken, her örneklem aşağıdaki gibi her sınıf
 
 Eğitim sırasında test kümesine göre başarıyı takip ederek, belirli bir iterasyon boyunca başarı iyileşmiyorsa, overfittingi engellemek için kullanılan ‘early stopping’ tekniğini kullanmama kararı aldık. Çünkü, kullanılması halinde, eğitimi başarısını raporlayacağı kümedeki performans, maksimuma ulaştığında durduğu için, iyimser bir raporlama yapılmasına yol açmaktadır.
 
+##### 1.3 - Loss fonksiyonu belirlemesi
+
+Ödül fonksiyonu olarak, Cross-Entropy fonksiyonun bir uzantısı olan OHEM(Online Hard Example Mining) fonksiyonunu kullandık.
+
+Bu yöntem, çoklu sınıflandırma problemlerinde, zor örneklerin tahmin edilememesi durumunda, daha çok penaltı vererek, parametrelerin buna uyum sağlamasını sağlatıyor.
+
+Ayrıca, her sınıfın eğitim örneği eşit olmadığı için, bu dengesizlikten az temsil edilen sınıfların da öğrenimini iyileştirmek için, sınıf ağırlıkları(az temsil edilen sınıf, daha önemli olmak üzere) kullandık.
+
+Ağırlıklar, aşağıdaki fonksiyona göre belirlendi.
+
+```
+cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) ** (1 / 3))).items())).values())
+cls_weights /= min(cls_weights)
+```
+
+##### 1.4 - Eğitim şeması ve parametreleri
+
+	* Cosine Scheduler + Warm Up
+
+Belirli aşama boyunca, başlangıçta verilen learning rate’den düşük olcak şekilde, küçük oranlarla artan, belirlenen learning rate’e ulaştığında, eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık.
+
+	* Gradient Clipping
+
+Eğitilen parametrelerin büyüklüklerinin, belirli büyüklüğü geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense, genele yayıp parametreler üstünde regülarizasyon etkisi görüyor.
+
+	* LLRD Decay
+
+Model mimarilerinin, embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
+
+##### 1.5 - Masked Language Modelling(Pretraining Tekniği)
+
+Fine-tune ettiğimiz problemdeki kelimelerin anlam temsillerini iyileştirmek, bağlamı daha iyi anlatabilmek için, metindeki bazı kelimeleri gizleyip, tahmin ettirdiğimiz bir dil modellemesi eğitim tekniği kullandık.  Dil modelleri de, metindeki bağlamı öğrenmek için, kelimelerin anlamları ve kelimelerin bir araya gelmesinden oluşan semantik anlamı modellemesi gerekmektedir. Bu modellerin eğitimleri, bir metnin içerisindeki bazı kelimeler gizlenip/değiştirilip, bağlama uyan doğru kelimeyi bulabilme ödülü ile eğitilir. Bu teknik, dil modeli eğitilirken kullanıldığı gibi, fine-tune ederken de kullanılabilir. Böylece, mevcut model mimarisini, mevcut göreve ait veri setindeki bağlama uyum sağlatarak regülarizasyon görevi görür.
+
+
+
+
 
 #### 2 - Model Validasyonu
 
