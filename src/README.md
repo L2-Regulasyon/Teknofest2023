@@ -49,15 +49,15 @@ cls_weights /= min(cls_weights)
 
 ##### 1.4 - Eğitim şeması ve parametreleri
 
-	* Cosine Scheduler + Warm Up
+- Cosine Scheduler + Warm Up
 
 Belirli aşama boyunca, başlangıçta verilen learning rate’den düşük olcak şekilde, küçük oranlarla artan, belirlenen learning rate’e ulaştığında, eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık.
 
-	* Gradient Clipping
+- Gradient Clipping
 
 Eğitilen parametrelerin büyüklüklerinin, belirli büyüklüğü geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense, genele yayıp parametreler üstünde regülarizasyon etkisi görüyor.
 
-	* LLRD Decay
+- LLRD Decay
 
 Model mimarilerinin, embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
 
