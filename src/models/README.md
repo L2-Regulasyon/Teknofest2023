@@ -29,7 +29,7 @@ TODO: Bu yöntem ile modeldeki yanlılığı azaltmış olsak da yarışma metri
 Aşağıda tahminleme süreci boyunca denemiş olduğumuz embedding modeller ve final sınıflandırma katmanları listelenmiştir.
 
 ### 3.1. Embedding Model Havuzu
-Aşama 1 olarak adlandırabileceğimiz bu kısım, bizlere iletilen `df['text']` sütunundaki metinleri sayısal olarak `N` boyutunda bir vektörde temsil etmemizi sağlamaktadır. Böylece aşama 2 adımında sınıflandırma görevi için modellere öznitelik (feature) sağlayabiliriz. Aşama 1'de oluşturulan vektörler probleme ne kadar uyumlu olursa, sınıflandırma aşaması sonuçlarının da o kadar iyileşmesi beklenmektedir. Bu nedenle farklı mimarileri (architecture) içeren geniş bir havuz oluşturmayı hedefledik.
+Aşama 1 olarak adlandırabileceğimiz bu kısım, bizlere iletilen `df['text']` sütunundaki metinleri sayısal olarak `N` boyutunda bir vektörde temsil etmemizi sağlamaktadır. Böylece aşama 2 adımında sınıflandırma görevi için modellere öznitelik (feature) sağlayabiliriz. Aşama 1'de oluşturulan vektörler probleme ne kadar uyumlu olursa, sınıflandırma aşaması sonuçlarının da o kadar iyileşmesi beklenmektedir. Bu nedenle farklı mimarileri (architecture) içeren geniş bir havuz oluşturmayı hedefledik ve aşağıdaki gibi listeledik.
 
 #### 3.1.1. TF-IDF 
 TF-IDF, bir belgedeki (corpus) her bir kelimenin değerlerini, belirli bir belgedeki kelimenin sıklığı ile kelimenin göründüğü belgelerin yüzdesinin tersiyle hesaplar. Temel olarak TF-IDF, belirli bir belgede kelimelerin göreceli sıklığını, bu kelimenin tüm veri seti üzerindeki tersine oranına göre belirleyerek çalışır. Sezgisel olarak, bu hesaplama, belirli bir kelimenin belirli bir belge ile ne kadar alakalı olduğunu belirler. Tek veya küçük bir belge grubunda ortak olan kelimeler genel kelimelerden daha yüksek TFIDF numaralarına sahip olma eğilimindedir [(Kaynak)](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547).
@@ -104,7 +104,7 @@ Lorem ipsum
 
 Lorem ipsum
 
-| Mimari | Macro-F1           |
-|--------|--------------------|
-| A      | 0.9 |
-| B      | 0.9  |
+| Backbone | Classifier           | Macro-F1 |
+|--------|--------------------| ---------|
+| A      | A | 0.9 |
+| B      | A  | 0.9  |
