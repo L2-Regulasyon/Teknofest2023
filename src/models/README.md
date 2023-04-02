@@ -21,8 +21,7 @@ Yarışma süresince genellebilir bir model oluşturmak adına hem türkçe hem 
 - [Turkish Tweets Sentiment Analysis](https://github.com/ezgisubasi/turkish-tweets-sentiment-analysis/blob/main/data/tweetset.csv)
 - [Türkçe Sosyal Medya Paylaşımı Veri Seti](https://www.kaggle.com/datasets/mrtbeyz/trke-sosyal-medya-paylam-veri-seti)
 
-Bu verilerin farklı kombinasyonlarını kullanarak ilk olarak pretraining amaçlı base modelimizi eğittik. Sonrasında birinci aşamadan gelen model ağırlıkları (weights) ile yarışma datasında fine-tune ettik. 
-TODO: Bu yöntem ile modeldeki yanlılığı azaltmış olsak da yarışma metriğini kötüleştirdiği için kullanmadık. 
+Bu verilerin farklı kombinasyonlarını kullanarak ilk olarak pretraining amaçlı base modelimizi eğittik. Sonrasında birinci aşamadan gelen model ağırlıkları (weights) ile yarışma datasında fine-tune ettik. Bu yöntem ile modeldeki yanlılığı azalttık ve production ortamı için genellenebilir bir model oluşturduk.
 
 ## 3. Denenen Modeller
 
@@ -72,7 +71,7 @@ Model Listesi:
 
 #### 3.1.4. RoBERTa Backbone
 
-roBERTa (Robustly Optimized BERT pre-training Approach) modellerinin BERT modellerinden ayrıştığı nokta maskingdir. BERT data hazırlanma aşamasında yalnızca bir kere statik bir masking yöntemi kullanırken; ROBERTA her bir epoch'da dynamic masking yapmaktadır ve bu nedenle robust olarak adlandırılmaktadır [(Kaynak)](https://arxiv.org/abs/1907.11692).
+roBERTa (Robustly Optimized BERT pre-training Approach) modellerinin BERT modellerinden ayrıştığı nokta maskingdir. BERT veri hazırlanma aşamasında yalnızca bir kere, statik bir masking yöntemi kullanırken; ROBERTA her bir epoch'da dynamic masking yapmaktadır ve bu nedenle robust olarak atfedilmektedir [(Kaynak)](https://arxiv.org/abs/1907.11692).
 
 Model Listesi:
 - [xlm-roberta-base](https://huggingface.co/xlm-roberta-base)
@@ -92,7 +91,7 @@ Bu kısımda Aşama 1'de elde edilen vektörler/öznitelikler kullanılarak fark
 
 #### 3.2.1. LightGBM
 
-LightGBM, histogram tabanlı çalışan bir boosting (ensemble) yöntemidir. Sürekli değerleri kesikli foramta dönüştürerek hesaplama gücü gereksinimi azaltır ve hızı artırır.
+LightGBM, histogram tabanlı çalışan bir boosting (ensemble) yöntemidir. Sürekli değerleri kesikli formata dönüştürerek hesaplama gücü gereksinimi azaltır ve hızı artırır.
 
 LightGBM leaf-wise bölünme yöntemini kullanmaktadır:
 
@@ -100,16 +99,29 @@ LightGBM leaf-wise bölünme yöntemini kullanmaktadır:
   <img src="https://user-images.githubusercontent.com/42123801/229350911-5bf5f795-e591-4cad-b945-f7f96decf111.png" width="800"/>
 </p>
 
-Leaf-wise yaklaşım veriseti küçük olduğunda overfit riski doğurmaktadır ancak doğru parametre seti ile bu tür riskler ortadan kaldırılabilir. 
+Leaf-wise yaklaşım veriseti küçük olduğunda overfit riski doğurmaktadır ancak doğru parametre seti ile bu tür riskler ortadan kaldırılabilir [(Kaynak)](https://lightgbm.readthedocs.io/en/v3.3.2/Features.html). 
 
 #### 3.2.2. XGBoost
-Lorem ipsum
+XGBoost'da (Extreme Gradient Boosting) decison-tree temelli ve gradient-boosting yöntemlerinden biridir. LightGBM'den farklı olarak level-wise yaklaşımı izlemektedir:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229359120-e3f1fb88-ad48-41be-8117-e1f730d17baf.png" width="800"/>
+</p>
+
 
 #### 3.2.3. CatBoost
-Lorem ipsum
 
-#### 3.2.4. Support Vector CLassifier (SVC)
-Lorem ipsum
+Catboost diğer Gradient Boosting algoritmalarından farklı olarak symmetric tree yöntemini izler:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229360226-edcf5dd6-5cf8-4d30-99a7-3f54edd5fdd4.png" width="600"/>
+</p>
+
+Ayrıca kategorik öznitelikleri daha farklı ele alarak one-hot-encoding dışına çıkar, farklı kategorik değerleri birleştirir ve daha iyi performans gösterir [(Kaynak)](https://catboost.ai/news/catboost-enables-fast-gradient-boosting-on-decision-trees-using-gpus).
+
+#### 3.2.4. Support Vector Classifier (SVC)
+
+Support Vector Machines (SVMs) sınıflandırma, regresyon ve aykırı değerlerin tespiti için kullanılan bir dizi denetimli öğrenme yöntemidir. Vektör boyutu fazla olduğunda avantaj sağlayan bir yöntemdir. Multi-class sınıflandırma için `one-versus-one` yöntemi izlenerek ....
 
 #### 3.2.5. Neural SoftMax Katmanı
 Lorem ipsum
