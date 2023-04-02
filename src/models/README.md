@@ -7,9 +7,9 @@
 
 Aşağılayıcı söylemleri sınıflandırma görevi için literatürde çeşitli yaklaşımlar öneren birçok yayın bulunmaktadır. Bu problemi araştıran yazarlar yanlılık (bias) problemi üzerine yoğunlaşmış; bu durumun çözümü için farklı ön işleme ve yaklaşımlar uygulamışlardır. Aşağıda literatürdeki çalışmalar listelenmiştir.   
 
-- [Aken B. V., Risch J. Krestel R. ve Löser A., (2018)](https://arxiv.org/abs/1809.07572) `Other, Toxic, Obscene, Insult, Identity Hate, Severe Toxic ve Threat` sınıflarını tahmin etmek için yaptıkları çalışmada en iyi F1 skorunu `Bidirectional GRU Attention (FastText)` modeli ile elde etmişlerdir. Ancak kullandıkları diğer modellerde de skorların benzer olduğu gözlemlenmiştir.
-- [Duchêne C., Jamet H., Guillaume P. ve Dehak R., (2023)](https://arxiv.org/abs/2301.11125) `Toxicity, Obscene, Sexual Explict, Identity Attack, Insult ve Threat` sınıflarının tahmini için `BERT, RNN, XLNET` mimarilerini kullanan modeller ile denemeler yapmışlardır ve bütün bu modellerin benzer sonuçlar verdiğini vurgulamışlardır. Nihai olarak; `Focall Loss` ile eğitilmiş `RoBERTa` modeli AUROC ve F1 olarak en iyi sonucu veren model olmuştur.
-- [Jhaveri M., Ramaiya D. ve Chadha H. S (2022)](https://arxiv.org/abs/2201.00598) `Abusive ve Not Abuse` sınıflarını birden çok dil (multilingual) için tahmin ederken `BERT` ailesinden 18 farklı model kullanmışlardır. `XLM-RoBERTa Large` en iyi sonucu veren model olmuştur.
+- [Aken B. V., Risch J. Krestel R. ve Löser A., (2018)](https://arxiv.org/abs/1809.07572) `Other, Toxic, Obscene, Insult, Identity Hate, Severe Toxic` ve `Threat` sınıflarını tahmin etmek için yaptıkları çalışmada en iyi F1 skorunu `Bidirectional GRU Attention (FastText)` modeli ile elde etmişlerdir. Ancak kullandıkları diğer modellerde de skorların benzer olduğu gözlemlenmiştir.
+- [Duchêne C., Jamet H., Guillaume P. ve Dehak R., (2023)](https://arxiv.org/abs/2301.11125) `Toxicity, Obscene, Sexual Explict, Identity Attack, Insult` ve `Threat` sınıflarının tahmini için `BERT, RNN, XLNET` mimarilerini kullanan modeller ile denemeler yapmışlardır ve bütün bu modellerin benzer sonuçlar verdiğini vurgulamışlardır. Nihai olarak; `Focall Loss` ile eğitilmiş `RoBERTa` modeli AUROC ve F1 olarak en iyi sonucu veren model olmuştur.
+- [Jhaveri M., Ramaiya D. ve Chadha H. S (2022)](https://arxiv.org/abs/2201.00598) `Abusive` ve `Not Abuse` sınıflarını birden çok dil (multilingual) için tahmin ederken `BERT` ailesinden 18 farklı model kullanmışlardır. `xlm-roberta-large` en iyi sonucu veren model olmuştur.
 
 ## 2. Kullanılan Dış Veriler
 Yarışma süresince genellebilir bir model oluşturmak adına hem türkçe hem de diğer dillerden birçok açık veri kaynağını taradık. Kullandığımız veriler aşağıda listelenmiştir.
@@ -29,7 +29,7 @@ TODO: Bu yöntem ile modeldeki yanlılığı azaltmış olsak da yarışma metri
 Aşağıda tahminleme süreci boyunca denemiş olduğumuz embedding modeller ve final sınıflandırma katmanları listelenmiştir.
 
 ### 3.1. Embedding Model Havuzu
-Aşama 1 olarak adlandırabileceğimiz bu kısım, bizlere iletilen `df['text']` sütunundaki metinleri sayısal olarak `N` boyutunda bir vektörde temsil etmemizi sağlamaktadır. Böylece aşama 2 adımında sınıflandırma görevi için modellere öznitelik (feature) sağlayabiliriz. Aşama 1'de oluşturulan vektörler probleme ne kadar uyumlu olursa, sınıflandırma aşaması sonuçlarının da o kadar iyileşmesi beklenmektedir. Bu nedenle farklı mimarileri (architecture) içeren geniş bir havuz oluşturmayı hedefledik ve aşağıdaki gibi listeledik.
+Aşama 1 olarak adlandırabileceğimiz bu kısım, bizlere iletilen `df['text']` sütunundaki metinleri sayısal olarak `N` boyutunda bir vektörde temsil etmemizi sağlamaktadır. Böylece AŞama 2'de sınıflandırma görevi için modellere öznitelik (feature) sağlayabiliriz. Aşama 1'de oluşturulan vektörler probleme ne kadar uyumlu olursa, sınıflandırma aşaması sonuçlarının da o kadar iyileşmesi beklenmektedir. Bu nedenle farklı mimarileri (architecture) içeren geniş bir havuz oluşturmayı hedefledik ve aşağıdaki gibi listeledik.
 
 #### 3.1.1. TF-IDF 
 TF-IDF, bir belgedeki (corpus) her bir kelimenin değerlerini, belirli bir belgedeki kelimenin sıklığı ile kelimenin göründüğü belgelerin yüzdesinin tersiyle hesaplar. Temel olarak TF-IDF, belirli bir belgede kelimelerin göreceli sıklığını, bu kelimenin tüm veri seti üzerindeki tersine oranına göre belirleyerek çalışır. Sezgisel olarak, bu hesaplama, belirli bir kelimenin belirli bir belge ile ne kadar alakalı olduğunu belirler. Tek veya küçük bir belge grubunda ortak olan kelimeler genel kelimelerden daha yüksek TFIDF numaralarına sahip olma eğilimindedir [(Kaynak)](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547).
@@ -46,6 +46,8 @@ FastText 2016 yılında Facebook tarafından geliştirilen Word2Vec tabanlı bir
 <p align="center">
   <img src="https://user-images.githubusercontent.com/42123801/229319555-81cd444f-a478-44ac-85b9-d8cd596e5231.png" width="800"/>
 </p>
+
+FastText için `skipgram` ve `cbow` mimarilerini denedik. Uygulama yöntemler için: [train_unsupervised](https://fasttext.cc/docs/en/python-module.html)
 
 #### 3.1.3. BERT Backbone
 
@@ -69,22 +71,36 @@ Model Listesi:
 
 
 #### 3.1.4. RoBERTa Backbone
+
+roBERTa (Robustly Optimized BERT pre-training Approach) modellerinin BERT modellerinden ayrıştığı nokta maskingdir. BERT data hazırlanma aşamasında yalnızca bir kere statik bir masking yöntemi kullanırken; ROBERTA her bir epoch'da dynamic masking yapmaktadır ve bu nedenle robust olarak adlandırılmaktadır [(Kaynak)](https://arxiv.org/abs/1907.11692).
+
 Model Listesi:
 - [xlm-roberta-base](https://huggingface.co/xlm-roberta-base)
 - [xlm-roberta-large](https://huggingface.co/xlm-roberta-large)
 
-#### 3.1.5. Sentence Transformers
+#### 3.1.5. Sentence Transformers Backbone
 Model Listesi:
+- [sentence-transformers/paraphrase-multilingual-mpnet-base-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2)
 - [sentence-transformers/all-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)
 
 
 ---
 
 #### 3.2. Sınıflandırma Katmanı Havuzu
-Lorem ipsum
+
+Bu kısımda Aşama 1'de elde edilen vektörler/öznitelikler kullanılarak farklı mimarilerle sınıflandırma görevi gerçekleştirilmiştir. 
 
 #### 3.2.1. LightGBM
-Lorem ipsum
+
+LightGBM, histogram tabanlı çalışan bir boosting (ensemble) yöntemidir. Sürekli değerleri kesikli foramta dönüştürerek hesaplama gücü gereksinimi azaltır ve hızı artırır.
+
+LightGBM leaf-wise bölünme yöntemini kullanmaktadır:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229350911-5bf5f795-e591-4cad-b945-f7f96decf111.png" width="800"/>
+</p>
+
+Leaf-wise yaklaşım veriseti küçük olduğunda overfit riski doğurmaktadır ancak doğru parametre seti ile bu tür riskler ortadan kaldırılabilir. 
 
 #### 3.2.2. XGBoost
 Lorem ipsum
