@@ -1,6 +1,8 @@
-import unicodedata
-from zemberek import TurkishSentenceNormalizer, TurkishSentenceExtractor, TurkishMorphology
 import string
+import unicodedata
+
+from zemberek import (TurkishMorphology, TurkishSentenceExtractor,
+                      TurkishSentenceNormalizer)
 
 remove_punc = str.maketrans('', '', string.punctuation)
 

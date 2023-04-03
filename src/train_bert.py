@@ -3,10 +3,10 @@
 
 import argparse
 
-from utils.data_utils import read_training_data
-from utils.pipeline_utils import run_cv, add_external_positive_data
-from utils.preprocess_utils import preprocess_text
 from models.bert_model import BertModel
+from utils.data_utils import read_training_data
+from utils.pipeline_utils import add_external_positive_data, run_cv
+from utils.preprocess_utils import preprocess_text
 
 
 def main(args):

@@ -1,8 +1,8 @@
+import gradio as gr
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from tqdm.auto import tqdm
-import gradio as gr
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 class VotingBertModel(torch.nn.Module):

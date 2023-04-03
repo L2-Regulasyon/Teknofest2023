@@ -3,6 +3,10 @@
 
 ---
 
+### Denenen Modeller / Yaklaşımlar ve Sonuçları
+
+---
+
 ## 1. Literatür Taraması
 
 Aşağılayıcı söylemleri sınıflandırma görevi için literatürde çeşitli yaklaşımlar öneren birçok yayın bulunmaktadır. Bu problemi araştıran yazarlar yanlılık (bias) problemi üzerine yoğunlaşmış; bu durumun çözümü için farklı ön işleme ve yaklaşımlar uygulamışlardır. Aşağıda literatürdeki çalışmalar listelenmiştir.
@@ -90,7 +94,7 @@ Model Listesi:
 
 ---
 
-#### 3.2. Sınıflandırma Katmanı Havuzu
+### 3.2. Sınıflandırma Katmanı Havuzu
 
 Bu kısımda Aşama 1'de elde edilen vektörler/öznitelikler kullanılarak farklı mimarilerle sınıflandırma görevi gerçekleştirilmiştir. 
 
@@ -152,7 +156,7 @@ Böylece Aşama 2 aslında Aşama 1'in içinde yer almış oldu ve nihai çözü
 
 ### 4. Modellerin Sonuçları
 
-Yarışma boyunca çok fazla mimari ve yöntem denedik. Denemelerimize ve sonuçlarına aşağıdaki tabloda yer verilmiştir. Tabloda yer alan bütün modeller aynı split stratejisiyle eğitilmiştir (Stratified 10 Fold) ve OOF (out-of-fold) sonuçlarıdır.
+Yarışma boyunca çok fazla mimari ve yöntem denedik. Denemelerimize ve sonuçlarına aşağıdaki tabloda yer verilmiştir. Tabloda yer alan bütün modeller aynı split stratejisiyle RTX4090 üzerinde eğitilmiştir (Stratified 10 Fold) ve OOF (out-of-fold) sonuçlarıdır.
 
 |Model|F1-Macro|F1-OTHER|F1-INSULT|F1-RACIST|F1-SEXIST|F1-PROFANITY|Ortalama Fold Eğitim Süresi|
 |---|---|---|---|---|---|---|---|

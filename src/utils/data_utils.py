@@ -1,8 +1,9 @@
 import collections.abc
-import pandas as pd
 import json
 
-from .constants import ZOO_PATH, PROCESSED_DATA_PATH
+import pandas as pd
+
+from .constants import PROCESSED_DATA_PATH, ZOO_PATH
 
 
 def update_zoo(zoo_dict, new_member):

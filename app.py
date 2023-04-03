@@ -1,17 +1,18 @@
 # THIS SCRIPT IS PROVIDED BY THE ORGANIZATOR
 
-import gradio as gr
-import pandas as pd
-import numpy as np
-import torch
 import os
-
-from src.utils.preprocess_utils import preprocess_text
-from src.utils.constants import TARGET_INV_DICT, TARGET_DICT
-from src.models.bert_model import BertModel
-
 # For model class import, model checkpoint looks for models sub-dir
 import sys
+
+import gradio as gr
+import numpy as np
+import pandas as pd
+import torch
+
+from src.models.bert_model import BertModel
+from src.utils.constants import TARGET_DICT, TARGET_INV_DICT
+from src.utils.preprocess_utils import preprocess_text
+
 sys.path.append("./src")
 #
 

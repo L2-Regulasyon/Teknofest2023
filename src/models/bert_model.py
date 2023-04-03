@@ -4,29 +4,29 @@ import time
 import pandas as pd
 from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedKFold
-
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForMaskedLM
-from transformers import DataCollatorForLanguageModeling
-from transformers import Trainer, TrainingArguments
-from transformers import get_cosine_schedule_with_warmup
-from transformers import AdamW
+from transformers import (AdamW, AutoModelForMaskedLM,
+                          AutoModelForSequenceClassification, AutoTokenizer,
+                          DataCollatorForLanguageModeling, Trainer,
+                          TrainingArguments, get_cosine_schedule_with_warmup)
+
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:21"
+
+import os
+import random
+
+import numpy as np
+import torch
+from torch.utils.data import Dataset
 
 from .base_model import BaseModel
 
-from torch.utils.data import Dataset
-
-import torch
-import numpy as np
-import os, random
-
 
 def get_optimizer_grouped_parameters(
-    model,
-    learning_rate, weight_decay,
-    layerwise_learning_rate_decay
+        model,
+        learning_rate, weight_decay,
+        layerwise_learning_rate_decay
 ):
     model_type = model.config.model_type
 
@@ -134,6 +134,7 @@ class StratifiedBatchSampler:
     """Stratified batch sampling
     Provides equal representation of target classes in each batch
     """
+
     def __init__(self, y, batch_size, shuffle=True):
         if torch.is_tensor(y):
             y = y.numpy()
@@ -146,7 +147,7 @@ class StratifiedBatchSampler:
 
     def __iter__(self):
         if self.shuffle:
-            self.skf.random_state = torch.randint(0,int(1e8),size=()).item()
+            self.skf.random_state = torch.randint(0, int(1e8), size=()).item()
         for train_idx, test_idx in self.skf.split(self.X, self.y):
             yield test_idx
 
@@ -195,7 +196,6 @@ class BertModel(BaseModel):
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-
     def load(self):
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path,
                                                                         use_auth_token=self.auth_token,
@@ -205,7 +205,6 @@ class BertModel(BaseModel):
                                                        use_auth_token=self.auth_token,
                                                        ignore_mismatched_sizes=True,
                                                        add_prefix_space=True)
-
 
     def save(self, path: str):
         self.model.save_pretrained(path)
@@ -258,8 +257,8 @@ class BertModel(BaseModel):
     def train(self,
               x_train,
               y_train,
-              x_val = 0,
-              y_val = 0,
+              x_val=0,
+              y_val=0,
               n_batches=1,
               fold_id="none"):
 

@@ -3,14 +3,14 @@
 
 import argparse
 
-from utils.data_utils import read_training_data
-from utils.pipeline_utils import run_cv
-from models.embedding_stack_model import EmbeddingStackModel
-
-from lightgbm import LGBMClassifier
-from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 from cuml.svm import SVC
+from lightgbm import LGBMClassifier
+from xgboost import XGBClassifier
+
+from models.embedding_stack_model import EmbeddingStackModel
+from utils.data_utils import read_training_data
+from utils.pipeline_utils import run_cv
 
 
 def main(args):

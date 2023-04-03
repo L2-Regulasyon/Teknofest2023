@@ -1,7 +1,8 @@
 import fasttext
-from .base_model import BaseModel
-from tqdm import tqdm
 import scipy
+from tqdm import tqdm
+
+from .base_model import BaseModel
 
 
 class VectorStackModel(BaseModel):

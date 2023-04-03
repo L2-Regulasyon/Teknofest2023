@@ -7,15 +7,15 @@
 
 ---
 
-#### 1. Kullanılan Teknolojiler
+## 1. Kullanılan Teknolojiler
 
-##### 1.1. Yazılım
+### 1.1. Yazılım
 
 ---
 
 Yarışma boyunca ekip üyelerinin tekrarlanabilir sonuçlar üretebilmeleri adına özel ayarlanmış Docker container'ları kullanılmıştır. Geliştirme ve server ortamında aynı ortamdan yararlanılmıştır. Docker container'ına ait bilgiler aşağıdaki gibidir.
 
-**Base Image:** nvcr.io/nvidia/pytorch:22.12-py3
+**Base Image:** [nvcr.io/nvidia/pytorch:22.12-py3](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch)
 
 **Ekstra PIP Kütüphaneleri:**
 - scikit-learn
@@ -33,7 +33,7 @@ Yarışma boyunca ekip üyelerinin tekrarlanabilir sonuçlar üretebilmeleri ad�
 
 ---
 
-##### 1.2. Donanım
+### 1.2. Donanım
 Geliştirme süreci boyunca ekip üyeleri tarafından kullanılan bilgisayarların özellikleri aşağıdaki gibidir:
 - NVIDIA RTX4090, i9 9900K, 64GB RAM
 - NVIDIA RTX3080, Ryzen 9 5900X, 128GB RAM
@@ -46,9 +46,9 @@ Yarışma demosu için [HuggingFace](https://huggingface.co/spaces/l2reg/Teknofe
 
 ---
 
-#### 2. Nihai Çözüm Mimarisi
+## 2. Nihai Çözüm Mimarisi
 
-##### 2.1. Temel Veri Analizi ve Önişleme
+### 2.1. Temel Veri Analizi ve Önişleme
 [Temel analizimiz](analysis/EDA.ipynb) sonucunda yarışmacılara sağlanan veri ile ilgili aşağıdaki çıkarımları yaptık:
 
 - Bazı cümleler birden fazla sınıfa dahil olabilecekken problem multi-label değil de multi-class olarak tanımlandığı için etiketçinin inisiyatifine göre tek bir sınıfa atfedilmiş
@@ -67,7 +67,7 @@ Bu bulgulardan yola çıkarak [Veri Üretimi](src/generate_data.py) ve [Veri Ön
 
 
 
-##### 2.2. Eğitim-Doğrulama Süreci
+### 2.2. Eğitim-Doğrulama Süreci
 Eğitim ve doğrulama sürecinde:
 - **Cross-Validation:** Stratified 10-Fold
 - **Skorlama:** Out-of-Fold yaklaşımı ile F1-Macro
@@ -100,14 +100,14 @@ Hem en iyi performansı gösterdiği, hem de diğer 4 çözüme karşı yek bir 
 - **Gradient Clipping:** 1.0
 - **MLM Pre-Training:** Kapalı
 
-#### 2.3. Modeldeki Önyargı
+## 2.3. Modeldeki Önyargı
 Geliştirme sürecinde bir sürü alternatif denedik ve bazılarının şaşırtıcı bir şekilde sonuçları iyileştirmediğini, hatta kötüleştirebildiğini gördük. En iyi modelimizin yanlış tahminlerini ve verinin yapısını beraber incelediğimizde verilen eğitim setiyle alakalı modelin performansını etkileyebilecek 4 potansiyel kritik sorun keşfettik:
 - **Cümle uzunlukları:** Yukarıdaki temel analiz çıktısında da bahsedildiği üzere `OTHER` sınıfına ait cümleler diğerlerine göre belirgin derecede daha uzun. Bu da modelin cümleler uzadıkça tahminini `OTHER` sınıfına kaydırmasına neden oluyor.
 - **Büyük harf dağılım dengesizliği:** Büyük harf içeren kelime kullanımının `OTHER` sınıfında neredeyse hiç yokken diğer sınıflarda `%30` civarında olduğunu görüyoruz. Böylelikle model yarattığımız işaretçiye gereğinden fazla anlam yükleyebiliyor. Masum bir kelimenin baş harfini büyütünde model ofansif sınıflar ile etiketlemeye meylediyor. `Uncased` yerine `Cased` model kullanılan herhangi bir senaryoda model bunu istemsizce özel işaretçiye gerek duymadan _kendisi yapıyor_.
 - **Cinsiyetçi Önyargı:** Modelde cinsiyetlere ait kelimeler kullanıldığında sınıflandırmalar cümle uzamadığı sürece ofansife kayıyor.
 - **Hitabet eksikliği:** `OTHER` sınıfına ait çoğu cümle ya üçüncü kişiye yönelik, ya da tanım-açıklama formatında yazılmış. Ofansif kategoriye girecek cümleler ise çoğunlukla ikili konuşmalardan alınan örnekler. Bu yüzden model genelgeçer ikili muhabbete ait jargon-kelime gördüğünde sınıflandırmasını belirgin bir şekilde ofansife kaydırıyor.
 
-#### 2.4. Final Modeller
+## 2.4. Final Modeller
 ![](img/model_versions.png)
 
 Yukarıda da bahsettiğimiz model önyargılarının bazıları sonucu büyük ölçütte değiştiriyordu. Bu yüzden 3 farklı versiyon tasarlamaya karar verdik. Yukarıda belirtilen önişlemeleri yaptıktan sonra aldığımız sonuçlar ise aşağıdaki gibidir:

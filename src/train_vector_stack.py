@@ -3,15 +3,14 @@
 
 import argparse
 
-from utils.data_utils import read_training_data
-from utils.pipeline_utils import run_cv
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from xgboost import XGBClassifier
 
 from models.vector_stack_model import VectorStackModel
-
-from lightgbm import LGBMClassifier
-from xgboost import XGBClassifier
-from catboost import CatBoostClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
+from utils.data_utils import read_training_data
+from utils.pipeline_utils import run_cv
 
 
 def main(args):
