@@ -31,7 +31,8 @@ def main(args):
         model_class = SVC
         head_model_args = {"probability": True}
 
-    retrain_arg = " (Fine-Tuned)" if args.retrain_embed_model else " (Vanilla)"
+    retrain_arg = " (Fine-Tuned)" if args.retrain_embed_model else ""
+    experiment_name = f"{args.embedding_model_path.replace('/', '-')}{retrain_arg} Embeddings + {args.head_model}"
 
     run_cv(model_obj=EmbeddingStackModel,
            model_params={"embed_model_path": args.embedding_model_path,
@@ -42,7 +43,7 @@ def main(args):
            fold_col=args.fold_name,
            x_col=args.xcol,
            y_col=args.ycol,
-           experiment_name=f"{args.embedding_model_path}{retrain_arg} Embeddings + {args.head_model}",
+           experiment_name=experiment_name,
            add_to_zoo=args.add_zoo,
            is_nn=True
            )

@@ -11,4 +11,5 @@ datasets \
 sentence-transformers \
 zemberek-python \
 gradio \
-seaborn
+seaborn \
+fasttext

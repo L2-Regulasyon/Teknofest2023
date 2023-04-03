@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer, util
 from .base_model import BaseModel
 from .bert_model import BertModel
 
+
 class EmbeddingStackModel(BaseModel):
     def __init__(self,
                  embed_model_path='dbmdz/bert-base-turkish-128k-uncased',
@@ -20,7 +21,8 @@ class EmbeddingStackModel(BaseModel):
               x_train,
               y_train,
               x_val,
-              y_val):
+              y_val,
+              fold_id = "none"):
 
         if self.retrain_embed_model:
             save_path = "./checkpoints/embed_stack_backbone"

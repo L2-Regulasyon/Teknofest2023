@@ -29,16 +29,15 @@ class VectorStackModel(BaseModel):
             self.vector_model = fasttext.train_unsupervised("temp_fasttext_train.txt")
             self.vector_model.transform = lambda x: scipy.sparse.csr_matrix([self.vector_model.get_sentence_vector(elm.replace("\n", "")) for elm in tqdm(x.values.tolist(),
                                                                                                              desc="FastText")])
-            x_train = self.vector_model.transform(x_train).toarray()
+            x_train = self.vector_model.transform(x_train)
         else:
-            x_train = self.vector_model.fit_transform(x_train).toarray()
+            x_train = self.vector_model.fit_transform(x_train)
 
         self.head_model.fit(x_train, y_train)
 
     def predict(self,
                 x_test):
-
-        x_test = self.vector_model.transform(x_test).toarray()
+        x_test = self.vector_model.transform(x_test)
         pred = self.head_model.predict(x_test).flatten().tolist()
-
-        return pred
+        pred_proba = self.head_model.predict_proba(x_test)
+        return pred, pred_proba

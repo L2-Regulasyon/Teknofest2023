@@ -1,7 +1,7 @@
 import os
 import time
-import pandas as pd
 
+import pandas as pd
 from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedKFold
 
@@ -74,7 +74,6 @@ def get_llrd_optimizer_scheduler(model, learning_rate=1e-5, weight_decay=0.01,
     optimizer = AdamW(
         grouped_optimizer_params,
         lr=learning_rate,
-        # eps=1e-6,
         correct_bias=True
     )
     scheduler = get_cosine_schedule_with_warmup(
@@ -91,13 +90,6 @@ def ohem_loss(preds, labels, weights, label_smoothing=0.05, epochnum=0):
                                             label_smoothing=label_smoothing
                                             )
     losses = CE_LOSS_OBJ(preds, labels)
-    # if epochnum == 0:
-    #     k = len(losses) // 2
-    # elif epochnum == 1:
-    #     k = len(losses) // 2
-    # elif epochnum == 2:
-    #     k = len(losses) // 2
-
     top_losses, _ = torch.topk(losses, k=len(losses) // 2)
     return top_losses.mean()
 
@@ -175,10 +167,16 @@ class BertModel(BaseModel):
                  llrd_decay=0.95,
                  label_smoothing=0.05,
                  grad_clip=1.0,
+                 prevent_bias=False,
                  mlm_pretrain=False,
-                 mlm_probability=0.15):
+                 mlm_probability=0.15,
+                 out_folder=None,
+                 experiment_name='',
+                 ):
 
         super().__init__()
+        self.out_folder = out_folder
+        self.experiment_name = experiment_name
         self.model_path = model_path
         self.auth_token = auth_token
         self.tokenizer_max_len = tokenizer_max_len
@@ -190,6 +188,7 @@ class BertModel(BaseModel):
         self.llrd_decay = llrd_decay
         self.label_smoothing = label_smoothing
         self.grad_clip = grad_clip
+        self.prevent_bias = prevent_bias
 
         self.mlm_pretrain = mlm_pretrain
         self.mlm_probability = mlm_probability
@@ -198,7 +197,6 @@ class BertModel(BaseModel):
 
 
     def load(self):
-
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path,
                                                                         use_auth_token=self.auth_token,
                                                                         num_labels=5)
@@ -249,8 +247,8 @@ class BertModel(BaseModel):
             train_dataset=dataset,
         )
 
-        print('Start a trainer...')
         # Start training
+        print('Start a trainer...')
         trainer.train()
 
         # Save
@@ -260,62 +258,51 @@ class BertModel(BaseModel):
     def train(self,
               x_train,
               y_train,
-              x_val,
-              y_val,
+              x_val = 0,
+              y_val = 0,
               n_batches=1,
               fold_id="none"):
 
         set_seed(42)
 
-        # def flatten(l):
-        #     return [item for sublist in l for item in sublist]
-        #
-        # ext_df = pd.read_csv("bilkent.csv")
-        # print(ext_df.text.values)
-        # masked_sents = [[sent for sent in str(sents).split(".") if (
-        #     ("kadın" in sent) or ("sen" in sent)
-        # )] for sents in ext_df.text.values]
-        # masked_sents = flatten(masked_sents)
-        # print(len(masked_sents))
-        #
-        # ext_df = ext_df[ext_df.label == 0].reset_index(drop=True)
-        # ext_df["target"] = 0
-        # x_train_ext = ext_df["text"].str.lower()
-        # y_train_ext = ext_df["target"]
-        #
-        # x_train = pd.concat([x_train, x_train_ext], ignore_index=True)
-        # y_train = pd.concat([y_train, y_train_ext], ignore_index=True)
-
-        # ext_df = pd.read_csv("turkish_bullying_dataset.csv")
-        # ext_df = ext_df[ext_df.label == 0].reset_index(drop=True)
-        # ext_df["target"] = 0
-        # x_train_ext = ext_df["text"].str.lower()
-        # y_train_ext = ext_df["target"]
-        #
-        # x_train = pd.concat([x_train, x_train_ext], ignore_index=True)
-        # y_train = pd.concat([y_train, y_train_ext], ignore_index=True)
-
-
+        # Class Weighting
         cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) ** (1 / 3))).items())).values())
         cls_weights /= min(cls_weights)
-        # cls_weights = np.ones(5)
         print("Class weights:", cls_weights)
 
+        # MLM Pretraining
         if self.mlm_pretrain:
             self.train_mlm(x_train)
             model_path = "./checkpoints/mlm_model"
         else:
             model_path = self.model_path
 
+        # Model initialization
         self.model = AutoModelForSequenceClassification.from_pretrained(model_path,
-                                                                        num_labels=5)
+                                                                        num_labels=5,
+                                                                        ignore_mismatched_sizes=True)
         self.model.to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path,
                                                        ignore_mismatched_sizes=True,
                                                        add_prefix_space=True)
 
+        # Unbiasing the data
+        if self.prevent_bias == 2:
+            # Length clipping for 'OTHER' class
+            offensive_lens = x_train[y_train != 0].str.split().apply(len).sample(
+                len(x_train[y_train == 0]), replace=True
+            ).values
+
+            k = pd.DataFrame(x_train[y_train == 0].str.split()).reset_index(drop=True).reset_index()
+            k = k.apply(
+                lambda x: " ".join(x.text[:offensive_lens[x["index"]]]), axis=1).values
+
+            x_train.loc[y_train == 0] = k
+
+        # Dataset creation
         train_texts = x_train.to_list()
         train_labels = y_train.to_list()
+
         train_encodings = self.tokenizer(train_texts,
                                          truncation=True,
                                          padding=True,
@@ -326,6 +313,7 @@ class BertModel(BaseModel):
             torch.tensor(train_encodings['attention_mask']),
             torch.tensor(train_labels))
 
+        # Dataloader creation
         train_loader = DataLoader(train_dataset,
                                   batch_sampler=StratifiedBatchSampler(y_train,
                                                                        batch_size=self.batch_size,
@@ -334,8 +322,9 @@ class BertModel(BaseModel):
                                   pin_memory=False,
                                   )
 
+        # Optimizator, LLRD and scheduler
         num_train_steps = int(len(train_texts) / self.batch_size * self.epochs)
-        num_warmup_steps = num_train_steps * self.warmup_ratio
+        num_warmup_steps = int(num_train_steps * self.warmup_ratio)
 
         optimizer, scheduler = get_llrd_optimizer_scheduler(self.model,
                                                             learning_rate=self.learning_rate,
@@ -346,6 +335,7 @@ class BertModel(BaseModel):
 
         scaler = torch.cuda.amp.GradScaler()
 
+        # Training loop
         for epoch in range(self.epochs):
             self.model.train()
 
@@ -381,15 +371,19 @@ class BertModel(BaseModel):
 
             # Evaluate on validation set
             tr_accuracy, tr_f1 = self.evaluate(x_train, y_train)
-            val_accuracy, val_f1 = self.evaluate(x_val, y_val)
+            if isinstance(x_val, pd.Series) and isinstance(y_val, pd.Series):
+                val_accuracy, val_f1 = self.evaluate(x_val, y_val)
             time.sleep(0.5)
             print(
                 f'Epoch {epoch + 1}, Training Accuracy: {tr_accuracy:.5f}, Training F1-Macro: {tr_f1:.5f}')
-            print(
-                f'Epoch {epoch + 1}, Validation Accuracy: {val_accuracy:.5f}, Validation F1-Macro: {val_f1:.5f}')
+            if isinstance(x_val, pd.Series) and isinstance(y_val, pd.Series):
+                print(
+                    f'Epoch {epoch + 1}, Validation Accuracy: {val_accuracy:.5f}, Validation F1-Macro: {val_f1:.5f}')
 
-        fold_id = fold_id if (fold_id != "none") else ""
-        self.save(f"./checkpoints/final_model_fold{fold_id}")
+        # Saving checkpoint
+        if self.out_folder:
+            fold_id = "_" + fold_id if (fold_id != "none") else ""
+            self.save(f"{self.out_folder}/{self.experiment_name}{fold_id}")
 
     def predict(self,
                 x_test):

@@ -32,14 +32,17 @@ git clone https://github.com/L2-Regulasyon/Teknofest2023.git
 ### 3. Docker ortamının oluşturulması
 Projenin ana klasörüne gidin ve aşağıdaki komutu çalıştırın.
 ```
-docker build -f env.Dockerfile -t l2reg .
+docker build -f Dockerfile -t l2reg .
 ```
 ### 4. Server'ın çalıştırılması
 Projenin ana klasörüne gidin ve aşağıdaki komutu çalıştırın.
 ```
-docker run -v $PWD:/tmp/working -v ${HOME}/.cache:/container_cache -w=/tmp/working \
--e "XDG_CACHE_HOME=/container_cache" -p 7860:7860 --gpus all --rm -it l2reg \
-python NLPEvaluation_L2_Regulasyon.py
+docker run -v $PWD:/tmp/working \
+-v ${HOME}/.cache:/container_cache \
+-w=/tmp/working \
+-e "XDG_CACHE_HOME=/container_cache" \
+-p 7860:7860 --gpus all --rm -it l2reg \
+python app.py
 ```
 
 ### 5. Eğitim ve analiz kodlarının çalıştırılması (Opsiyonel)

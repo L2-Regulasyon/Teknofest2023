@@ -5,9 +5,8 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from utils.constants import TARGET_DICT
-from utils.preprocess_utils import preprocess_text
 
-FOLD_CNT = 5
+FOLD_CNT = 10
 
 # %%
 df = pd.read_csv("../data/raw/teknofest_train_final.csv",
@@ -25,12 +24,9 @@ df = df[~((df.target != 'OTHER') & (df.is_offensive == 0))]
 df = df.reset_index(drop=True)
 
 # %%
-# Preprocessing
-df["text"] = preprocess_text(df["text"])
-
-# %%
 # Label Encoding
 df['target_label'] = df['target'].map(TARGET_DICT)
+
 
 # %%
 # Creating public & private folds
@@ -56,6 +52,7 @@ def assign_split_ids(input_df: pd.DataFrame,
 
 assign_split_ids(input_df=df, fold_name="public_fold", fold_count=FOLD_CNT, seed=1337)
 assign_split_ids(input_df=df, fold_name="private_fold", fold_count=FOLD_CNT, seed=42)
+
 
 # %%
 # Export
