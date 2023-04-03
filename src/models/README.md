@@ -139,8 +139,6 @@ Lorem ipsum
 |dbmdz-bert-base-turkish-128k-uncased (Fine-Tuned) Embeddings + lgbm|95.5	|96.62	|91.94	|96.6	|96.34	|96.01	|80.71 +- 0.42s|
 |dbmdz-bert-base-turkish-128k-uncased (Fine-Tuned) Embeddings + xgb|95.48	|96.59	|91.94	|96.52	|96.41	|95.95	|76.52 +- 0.33s|
 |dbmdz-bert-base-turkish-128k-uncased (Fine-Tuned) Embeddings + catboost|95.44	|96.51	|91.91	|96.69	|96.15	|95.95	|81.57 +- 0.31s|
-|toxic-dbmdz-bert-base-turkish-128k-uncased-casing-unbiased|94.86	|95.38	|91.2	|95.94	|95.93	|95.87	|63.05 +- 0.43s|
-|toxic-dbmdz-bert-base-turkish-128k-uncased-fully-unbiased|93.36	|91.97	|89.29	|94.88	|94.86	|95.79	|93.81 +- 1.59s|
 |xlm-roberta-base (Fine-Tuned) Embeddings + lgbm|92.92	|94.35	|87.27	|94.37	|94.66	|93.96	|102.41 +- 0.32s|
 |xlm-roberta-base (Fine-Tuned) Embeddings + svc|92.89	|94.24	|87.43	|94.31	|94.48	|93.97	|97.83 +- 0.5s|
 |xlm-roberta-base (Fine-Tuned) Embeddings + xgb|92.84	|94.29	|87.21	|94.38	|94.46	|93.87	|97.88 +- 0.31s|
