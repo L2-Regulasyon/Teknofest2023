@@ -95,23 +95,76 @@ eğitim tamamlandıktan sonra data/model_zoo.json dosyasına ‘TFIDF_LGBM’ ad
 
 #### 4 - Kodların Kullanımı
 
+Buradaki kodları kullanmadan önce ana dizinden bu kodların olduğu dizine aşağıdaki kod ile geçiş yapmalısınız:
+```
+cd src
+```
+
+
+**generate_data.py**
+
+Hiçbir parametre ayarlamadan sonuçlarımızı yeniden alabileceğiniz işlenmiş veriyi aşağıdaki kodu çalıştırarak elde edebilirsiniz. Dilerseniz üretilmesini istediğiniz cross-validation fold sayısını kodun içerisinden ayarlayabilirsiniz.
+```
+python generate_data.py
+```
+
 **train_bert.py**
 
-Lorem ipsum
+`BERT` ve `RoBERTa` mimarili modelleri eğitmek için bu trainer'ı kullanabilirsiniz. Aşağıdaki parametreler ile özelleştirilebilir:
+- **-model-path:** Kullanılacak baz modelin adresi
+- **-epochs:** Modelin kaç epoch eğitileceği
+- **-batch-size:** Batch size
+- **-tokenizer-max-len:** Tokenizer'ın cümleleri maksimum kaç token'a kadar işleyeceği
+- **-learning-rate:** Learning rate
+- **-warmup-ratio:** Cosine LR Scheduler'ın warm-up süresinin iterasyon yüzdesi cinsinden karşılığı
+- **-weight-decay:** Weightlerin L2 normuna uygulanacak decay-rate
+- **-llrd-decay:** Model içi layerlar arası LR decay-rate
+- **-label-smoothing:** Model sınıf değerlerine uygulanacak yumuşatma oranı
+- **-grad-clip:** Backpropagation esnasında gradyanların kırpılacağı eşik değeri
+- **-prevent-bias:** Verideki ön-yargıya karşı alınacak önlem seviyesi _(0,1,2)_
+- **--mlm-pretrain:** Baz modelde unsupervised Masked-Language-Modelling ön eğitimi uygulaması _(Açık-Kapalı)_
+- **-mlm-probability:** MLM eğitimi esnasında tokenların maskelenme olasılığı
+- **--cv:** Eğitimde cross-validation kullanılması (Açık-Kapalı)
+- **-out-folder:** Model sonuçlarının çıkartılacağı dosya
 ```
-python train_bert.py --params
+python train_bert.py **params
 ```
 
 **train_embedding_stack.py**
 
-Lorem ipsum
+`BERT` ve `RoBERTa` mimarili modelleri `SVC` ve `GBDT` tipi ağaç modellerini sınıflandırma katmanı olarak kullanarak eğitmek için bu trainer'ı kullanabilirsiniz. Aşağıdaki parametreler ile özelleştirilebilir:
+- **-embedding-model-path:** Kullanılacak embedding baz modelin adresi
+- **-head-model:** Sınıflandırma için kullanılacak modelin tipi _(SVC, LGBM, CatBoost, XGBoost)_
+- **--retrain-embed-model:** Baz modelin tekrar eğitilmesi _(Açık-Kapalı)_
+
 ```
-python train_embedding_stack.py --params
+python train_embedding_stack.py **params
 ```
 
 **train_vector_stack.py**
 
-Lorem ipsum
+`TFIDF` ve `FastText` modellerini `GBDT` tipi ağaç modellerini sınıflandırma katmanı olarak kullanarak eğitmek için bu trainer'ı kullanabilirsiniz. Aşağıdaki parametreler ile özelleştirilebilir:
+
+- **-vector-model:** Kullanılacak embedding modeli _(TFIDF, FastText)_
+- **-head-model:** Sınıflandırma için kullanılacak modelin tipi _(LGBM, CatBoost, XGBoost)_
+
 ```
-python train_vector_stack.py --params
+python train_vector_stack.py **params
+```
+
+**create_voting_bert.py**
+
+`train_bert.py` ile CV modunda eğitilmiş modellerin bnirleştirilip tek bir voting-ensemble haline getirilmesini kodu aşağıdaki parametrelerle özelleştirerek sağlayabilirsiniz:
+- **-c:** Kullanılacak modellerin adresleri
+- **-o:** Oluşturulacak ensemble model'in kaydedilme adresi
+
+```
+python create_voting_bert.py **params
+```
+
+**push_to_hub.py**
+
+`train_bert.py` ile CV kullanılmadan bütün veri ile eğitilmiş modelleri HuggingFace'a bu kod ile yükleyebilirsiniz. Yükleyeceğiniz modeli ve hedef repository'i koda müdahale ederek değiştirmeniz gerekmektedir.
+```
+python push_to_hub.py
 ```

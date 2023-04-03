@@ -45,5 +45,9 @@ docker run -v $PWD:/tmp/working \
 python app.py
 ```
 
-### 5. Eğitim ve analiz kodlarının çalıştırılması (Opsiyonel)
-İlgili süreçlere [buradan](src/README.md) ulaşabilirsiniz.
+### 5. Eğitimlerin Tekrarlanması (Opsiyonel)
+**3.** adımı uyguladıktan sonra aşağıdaki kodu çalıştırın.
+```
+bash create_model_zoo.sh
+```
+Eğitim parametrelerini değiştirerek daha özelleştirilmiş eğitimler koşmak istiyorsanız [bu dökümanı](src/README.md) inceleyebilirsiniz.

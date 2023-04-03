@@ -51,6 +51,7 @@ Yarışma demosu için [HuggingFace](https://huggingface.co/spaces/l2reg/Teknofe
 ##### 2.1. Temel Veri Analizi ve Önişleme
 [Temel analizimiz](analysis/EDA.ipynb) sonucunda yarışmacılara sağlanan veri ile ilgili aşağıdaki çıkarımları yaptık:
 
+- Bazı cümleler birden fazla sınıfa dahil olabilecekken problem multi-label değil de multi-class olarak tanımlandığı için etiketçinin inisiyatifine göre tek bir sınıfa atfedilmiş
 - Şartnamede belirtilenin aksine dengeli bir etiket dağılımı mevcut değil
 - Veride birkaç harften meydana gelen gürültü sayılabilecek örnekler mevcut
 - Bazı kelimelerin sonuna bilinçli veya bilinçsiz şekilde noktalama işaretleri eklenmiş
@@ -89,10 +90,12 @@ Hem en iyi performansı gösterdiği, hem de diğer 4 çözüme karşı yek bir 
 - **Loss**: BCE
 - **Online Hard Example Mining**: Açık
 - **Class-Weighting**: Açık (^0.3)
+- **Early Stopping**: Kapalı
+- **Stratified Batch Sampling**: Açık
 - **LR Scheduler:** Cosine-with-Warmup
 - **Warmup Ratio:** 0.1
 - **Weight Decay:** 0.01
-- **LLRD Weight Decay:** 0.95
+- **LLRD:** 0.95
 - **Label Smoothing:** 0.05
 - **Gradient Clipping:** 1.0
 - **MLM Pre-Training:** Kapalı
