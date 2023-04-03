@@ -9,7 +9,9 @@
 
 ## 1 - Eğitim Şeması / Parametreleri
 
-### 1.1. StratifiedBatchSampler
+### 1.1. StratifiedBatchSampler - [Referans](https://discuss.pytorch.org/t/how-to-enable-the-dataloader-to-sample-from-each-class-with-equal-probability/911/7)
+
+### 1.2. 'Early Stopping' Olmaksızın Eğitim
 
 Her iterasyon sırasında kullanılcak örneklem sayısı(batch_size) parametresi ve her örnekleme düşen veri dağılımı, eğitim performansı gelişimini hızlandırma veyahut stabilleştirmesine etki eder. Eğer düşük örneklem sayısı kullanılırsa, batch’lere düşen veri tek bir sınıftan oluşabilir, ya da tüm sınıfları içercek şekilde örneklem oluşturmaz. Bu da aşağıdaki sonuçlara yol açabilir.
 
@@ -32,7 +34,7 @@ StratifiedBatchSampler kullanırken, her örneklem aşağıdaki gibi her sınıf
 
 Eğitim sırasında test kümesine göre başarıyı takip ederek, belirli bir iterasyon boyunca başarı iyileşmiyorsa, overfittingi engellemek için kullanılan ‘early stopping’ tekniğini kullanmama kararı aldık. Çünkü, kullanılması halinde, eğitimi başarısını raporlayacağı kümedeki performans, maksimuma ulaştığında durduğu için, iyimser bir raporlama yapılmasına yol açmaktadır.
 
-### 1.3. Loss Fonksiyonu Belirlemesi
+### 1.3. Loss Fonksiyonu Belirlemesi - [Referans](https://arxiv.org/abs/1604.03540v1)
 
 Ödül fonksiyonu olarak, Cross-Entropy fonksiyonun bir uzantısı olan OHEM(Online Hard Example Mining) fonksiyonunu kullandık.
 
@@ -49,19 +51,21 @@ cls_weights /= min(cls_weights)
 
 ### 1.4. Eğitim Şeması Ve Parametreleri
 
-#### 1.4.1. Cosine Scheduler + Warm Up
+#### 1.4.1. Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules)
 
 Belirli aşama boyunca, başlangıçta verilen learning rate’den düşük olcak şekilde, küçük oranlarla artan, belirlenen learning rate’e ulaştığında, eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık.
 
-#### 1.4.2. Gradient Clipping
+#### 1.4.2. Gradient Clipping - [Referans](https://neptune.ai/blog/understanding-gradient-clipping-and-how-it-can-fix-exploding-gradients-problem#:~:text=What%20is%20gradient%20clipping%3F,gradients%20to%20update%20the%20weights.)
+
 
 Eğitilen parametrelerin büyüklüklerinin, belirli büyüklüğü geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense, genele yayıp parametreler üstünde regülarizasyon etkisi görüyor.
 
-#### 1.4.3. LLRD Decay
+#### 1.4.3. LLRD Decay - [Referans](https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e)
 
 Model mimarilerinin, embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
 
-### 1.5. Masked Language Modelling(Pretraining Tekniği)
+### 1.5. Masked Language Modelling(Pretraining Tekniği) - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling)
+
 
 Fine-tune ettiğimiz problemdeki kelimelerin anlam temsillerini iyileştirmek, bağlamı daha iyi anlatabilmek için, metindeki bazı kelimeleri gizleyip, tahmin ettirdiğimiz bir dil modellemesi eğitim tekniği kullandık.  Dil modelleri de, metindeki bağlamı öğrenmek için, kelimelerin anlamları ve kelimelerin bir araya gelmesinden oluşan semantik anlamı modellemesi gerekmektedir. Bu modellerin eğitimleri, bir metnin içerisindeki bazı kelimeler gizlenip/değiştirilip, bağlama uyan doğru kelimeyi bulabilme ödülü ile eğitilir. Bu teknik, dil modeli eğitilirken kullanıldığı gibi, fine-tune ederken de kullanılabilir. Böylece, mevcut model mimarisini, mevcut göreve ait veri setindeki bağlama uyum sağlatarak regülarizasyon görevi görür.
 
@@ -73,7 +77,8 @@ Projede denenen model mimarisi ve parametrelerinin başarı performansının, ay
 
 Teknofest tarafından verilen veriye, iki farklı seed ile, iki farklı fold tanımı yapıldı. Bu foldlara, public ve private isimleri verildi. Geliştirmeler ağırlık olarak public fold ile yapılırken, seyrek olarak da private fold ile public fold arasındaki korelasyona bakıldı. Bunun amacı, public foldda düzenli olarak iyileşme görürken, private’de aynı etkide gelişme görülmesini beklemekti. Aksi durum, skor gelişimi yapan geliştirmelerin, farklı seed’lere genelleşemediği, yani mevcut CV’ye overfit olabilme riski taşıdığını gösterecekti.
 
-### 2.2. OOF Evaluation
+### 2.2. OOF Evaluation - [Referans](https://machinelearningmastery.com/out-of-fold-predictions-in-machine-learning/#:%7E:text=An%20out%2Dof%2Dfold%20prediction,example%20in%20the%20training%20dataset.)
+
 
 Eğitilen modelin ne kadar başarılı olduğunun değerlendirmesini Out-Of-Fold skoru tekniğine göre yaptık. Bu teknik, veriyi bir cross-validation şemasına göre böldükten sonra, örneğin 5 Fold StratifiedKFold, her foldun eğitim kümesinde eğitim yapıp, test kümesini skorladıktan sonra, skorlanan test kümelerini birleştirir. Böylece, eğitim kümesindeki her örneğin, test setindeki performansına erişebildiğinizden, genelleşebilme performansını tam kapasiteyle test edebilmiş olmaktayız.
 
