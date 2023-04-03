@@ -5,7 +5,8 @@
 
 ## 1. Literatür Taraması
 
-Aşağılayıcı söylemleri sınıflandırma görevi için literatürde çeşitli yaklaşımlar öneren birçok yayın bulunmaktadır. Bu problemi araştıran yazarlar yanlılık (bias) problemi üzerine yoğunlaşmış; bu durumun çözümü için farklı ön işleme ve yaklaşımlar uygulamışlardır. Aşağıda literatürdeki çalışmalar listelenmiştir.   
+Aşağılayıcı söylemleri sınıflandırma görevi için literatürde çeşitli yaklaşımlar öneren birçok yayın bulunmaktadır. Bu problemi araştıran yazarlar yanlılık (bias) problemi üzerine yoğunlaşmış; bu durumun çözümü için farklı ön işleme ve yaklaşımlar uygulamışlardır. Aşağıda literatürdeki çalışmalar listelenmiştir.   ![ezgif-1-9a1ef6330b](https://user-images.githubusercontent.com/42123801/229606561-4f179c71-b532-4371-bf5c-44e8e36e64d1.jpg)
+
 
 - [Aken B. V., Risch J. Krestel R. ve Löser A., (2018)](https://arxiv.org/abs/1809.07572) `Other, Toxic, Obscene, Insult, Identity Hate, Severe Toxic` ve `Threat` sınıflarını tahmin etmek için yaptıkları çalışmada en iyi F1 skorunu `Bidirectional GRU Attention (FastText)` modeli ile elde etmişlerdir. Ancak kullandıkları diğer modellerde de skorların benzer olduğu gözlemlenmiştir.
 - [Duchêne C., Jamet H., Guillaume P. ve Dehak R., (2023)](https://arxiv.org/abs/2301.11125) `Toxicity, Obscene, Sexual Explict, Identity Attack, Insult` ve `Threat` sınıflarının tahmini için `BERT, RNN, XLNET` mimarilerini kullanan modeller ile denemeler yapmışlardır ve bütün bu modellerin benzer sonuçlar verdiğini vurgulamışlardır. Nihai olarak; `Focall Loss` ile eğitilmiş `RoBERTa` modeli AUROC ve F1 olarak en iyi sonucu veren model olmuştur.
@@ -121,16 +122,33 @@ Ayrıca kategorik öznitelikleri daha farklı ele alarak one-hot-encoding dış�
 
 #### 3.2.4. Support Vector Classifier (SVC)
 
-Support Vector Machines (SVMs) sınıflandırma, regresyon ve aykırı değerlerin tespiti için kullanılan bir dizi denetimli öğrenme yöntemidir. Vektör boyutu fazla olduğunda avantaj sağlayan bir yöntemdir. Multi-class sınıflandırma için `one-versus-one` yöntemi izlenerek ....
+Support Vector Machines (SVMs) sınıflandırma, regresyon ve aykırı değerlerin tespiti için kullanılan bir dizi denetimli öğrenme yöntemidir. Vektör boyutu fazla olduğunda avantaj sağlayan bir yöntemdir.
+
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229606614-865b08f0-0e1c-4631-9fc9-445306e8048c.jpg" width="500"/>
+</p>
+
+
+
+
+Multi-class sınıflandırma için ise `one-versus-one` yöntemi izlenerek tahminler oluşturulmaktadır. [(Kaynak)](https://scikit-learn.org/stable/modules/svm.html#multi-class-classification)
 
 #### 3.2.5. Neural SoftMax Katmanı
-Lorem ipsum
+
+Fine-tune ettiğimiz dil modellerinin son katmanına softmax yerleştirerek her bir class için olasılık dönmesini sağladık.
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/42123801/229606143-46162f66-dab5-4490-80b2-c4ed96e84438.jpg" width="400"/>
+</p>
+
+Böylece Aşama 2 aslında Aşama 1'in içinde yer almış oldu ve nihai çözümümüzde de hem mimari olarak kolaylık sağlamasından hem de başarısından ötürü bu yöntemi kullandık.
 
 ---
 
 ### 4. Modellerin Sonuçları
 
-Lorem ipsum
+Yarışma boyunca çok fazla mimari ve yöntem denedik. Denemelerimize ve sonuçlarına aşağıdaki tabloda yer verilmiştir. Tabloda yer alan bütün modeller aynı split stratejisiyle eğitilmiştir (Stratified 10 Fold) ve OOF (out-of-fold) sonuçlarıdır.
 
 |Model|F1-Macro|F1-OTHER|F1-INSULT|F1-RACIST|F1-SEXIST|F1-PROFANITY|Ortalama Fold Eğitim Süresi|
 |---|---|---|---|---|---|---|---|
