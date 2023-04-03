@@ -79,9 +79,13 @@ Model Listesi:
 - [xlm-roberta-large](https://huggingface.co/xlm-roberta-large)
 
 #### 3.1.5. Sentence Transformers Backbone
+
+Kullandığımız Sentence Transformerların hepsi BERT ailesine aittir. Sentence Transformerslar genellikle metin ve görsellerin belirli bir vektör uzayında benzerliklerini daha hızlı tespit edebilmek adına geliştirilmiş ve daha çok unsupervised görevlerde kullanılmaktadırlar [(Kaynak)](https://arxiv.org/abs/1908.10084). 
+
 Model Listesi:
 - [sentence-transformers/paraphrase-multilingual-mpnet-base-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2)
 - [sentence-transformers/all-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)
+- [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 
 
 ---
