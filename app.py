@@ -1,19 +1,21 @@
 # THIS SCRIPT IS PROVIDED BY THE ORGANIZATOR
 
 import os
-# For model class import, model checkpoint looks for models sub-dir
-import sys
+import re
 
 import gradio as gr
-import numpy as np
 import pandas as pd
-import torch
+import numpy as np
 
 from src.models.bert_model import BertModel
 from src.utils.constants import TARGET_DICT, TARGET_INV_DICT
 from src.utils.preprocess_utils import preprocess_text
 
-sys.path.append("./src")
+# CV Voting Model Load
+# For model class import, model checkpoint looks for models sub-dir
+# import sys
+# sys.path.append("./src")
+
 #
 
 # Loading and transferring the model
@@ -40,6 +42,21 @@ fully_unbiased_model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish
 fully_unbiased_model.load()
 
 
+# Cased-Sentence ratio
+def get_uppercase_sentence_ratio(input_df):
+    def find_uppercase(text):
+        pattern = '[A-Z]'
+        rgx = re.compile(pattern)
+        result = rgx.findall(''.join(sorted(text)))
+        return result
+
+    any_upper_letter = input_df["text"].apply(lambda x: find_uppercase(x))
+    any_upper_letter = any_upper_letter.apply(lambda x: len(x) > 0)
+    any_upper_letter = any_upper_letter.astype(int)
+
+    return np.round(any_upper_letter.mean(), 3)
+
+
 # Authorization routine
 def auth(username, password):
     if username == "L2_Regulasyon" and password == os.environ["space_auth_pass"]:
@@ -49,19 +66,31 @@ def auth(username, password):
 
 
 def predict(df):
-    df["offansive"] = 1
+    df["is_offensive"] = 1
     df["target"] = "OTHER"
 
-    df["proc_text"] = preprocess_text(df["text"])
-    pred_classes, _ = model.predict(df["proc_text"])
+    # Case-Specific Competition Routine
+    cased_ratio = get_uppercase_sentence_ratio(df)
+    print(f"CR: {cased_ratio}")
+    if (cased_ratio <= 0.35) and (cased_ratio >= 0.25):
+        print(f"Using # routine...")
+        df["proc_text"] = preprocess_text(df["text"],
+                                          prevent_bias=0)
+        pred_classes, _ = model.predict(df["proc_text"])
+    else:
+        print(f"Using lower routine...")
+        df["proc_text"] = preprocess_text(df["text"],
+                                          prevent_bias=1)
+        pred_classes, _ = case_unbiased_model.predict(df["proc_text"])
 
+    # Class ID > Text
     for pred_i, pred in enumerate(pred_classes):
         pred_classes[pred_i] = TARGET_INV_DICT[pred] if pred in [0, 1, 2, 3, 4] else pred
 
     df["target"] = pred_classes
-    df.loc[df["target"] == "OTHER", "offansive"] = 0
+    df.loc[df["target"] == "OTHER", "is_offensive"] = 0
 
-    return df[["id", "text", "offansive", "target"]]
+    return df[["id", "text", "is_offensive", "target"]]
 
 
 def get_file(file):
@@ -71,10 +100,11 @@ def get_file(file):
     file_name = file.name.replace("\\", "/")
 
     df = pd.read_csv(file_name, sep="|")
+    print(f"Got {file_name}.\nIt consists of {len(df)} rows!")
 
     df = predict(df)
     df.to_csv(output_file, index=False, sep="|")
-    return [output_file, output_file]
+    return (output_file)
 
 
 def demo_inference(selected_model, input_text):

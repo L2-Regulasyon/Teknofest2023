@@ -156,7 +156,7 @@ Böylece Aşama 2 aslında Aşama 1'in içinde yer almış oldu ve nihai çözü
 
 ### 4. Modellerin Sonuçları
 
-Yarışma boyunca çok fazla mimari ve yöntem denedik. Denemelerimize ve sonuçlarına aşağıdaki tabloda yer verilmiştir. Tabloda yer alan bütün modeller aynı split stratejisiyle RTX4090 üzerinde eğitilmiştir (Stratified 10 Fold) ve OOF (out-of-fold) sonuçlarıdır.
+Yarışma boyunca birçok mimari ve yöntemi kombinasyonlarıyla denendi. Denemelerimize ve sonuçlarına aşağıdaki tabloda yer verilmiştir. NLP modellerinde hem ayrıklığı azaltmak hem de transformer modellerinin aynı boyutta sözlük dağarcığıyla daha fazla farklı kelimeyi temsil edebilmeleri adına küçük-harf dönüşümü kullanılmıştır. Verilmiş bütün mimari kombinasyonlar aynı split stratejisiyle **RTX4090** üzerinde eğitilmiştir. **Stratified 10 Fold** ve **OOF (Out-of-Fold)** sonuçları raporlanmıştır.
 
 |Model|F1-Macro|F1-OTHER|F1-INSULT|F1-RACIST|F1-SEXIST|F1-PROFANITY|Ortalama Fold Eğitim Süresi|
 |---|---|---|---|---|---|---|---|
