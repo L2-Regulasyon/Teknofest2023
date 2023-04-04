@@ -55,11 +55,11 @@ Belirli bir ısınma süreci boyunca hedef learning rate’a kadar küçük oran
 
 Eğitilen parametrelerin büyüklüklerini belirli bir değeri geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense gradyanların genele yayılıp parametreler üstünde regülarizasyon etkisi yaratılmasını sağlıyor.
 
-### 1.7. Weight Decay
+### 1.7. Weight Decay - [Referans](https://towardsdatascience.com/this-thing-called-weight-decay-a7cd4bcfccab)
 
 Weight Decay, loss fonksiyonuna overfit’i engellemek için parametre büyüklüğüne göre penaltı ekler. Overfitting’i azaltmak için bu metodu da parametrik olarak mevcut akışımıza ekledik. Bu penaltıya göre, sinir ağı eğitilirken, mevcut iterasyonda büyük parametreler kullanılıyorsa, daha büyük loss elde edilirken, örneğin L2 norm uygulandığı durumda elde edilen küçük parametreler ile daha küçük loss elde edilir. Böylelikle, sinir ağının kararına parametrelerin büyüklük olarak önemli bir alt kümesinden ziyade, parametrelerin geneli karar verdiğinden, modelin farklı veri desenlerine genelleşmesi daha olası hale gelmektedir.
 
-### 18. Label Smoothing
+### 1.8. Label Smoothing - [Referans](https://towardsdatascience.com/what-is-label-smoothing-108debd7ef06)
 
 Label Smoothing, loss fonksiyonu olarak, cross-entropy kullanırken, sinir ağı mimarisinin eğitim verisine overfit olmasını engelleyen diğer bir regülarizasyon tekniği kullandık.. Bu teknik, modelin doğru sınıf üzerindeki kararlılığını azaltarak, görülmeyen verinin eğitim verisine benzeme varsayımı konusunda daha az katı modeller eğitmeye yaramaktadır.
 
