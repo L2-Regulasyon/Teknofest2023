@@ -2,9 +2,8 @@
 # coding: utf-8
 # %%
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
-
 from utils.constants import TARGET_DICT
+from sklearn.model_selection import StratifiedKFold
 
 FOLD_CNT = 10
 

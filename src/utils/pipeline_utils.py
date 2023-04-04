@@ -1,14 +1,12 @@
-import os
 import time
-
-import numpy as np
 import pandas as pd
-from sklearn.metrics import classification_report
+import os
+import numpy as np
 from tqdm.auto import tqdm
-
-from .constants import MODEL_CV_RESULT_PATH, TARGET_DICT, TARGET_INV_DICT
-from .data_utils import read_model_zoo, update_zoo, write_model_zoo
+from sklearn.metrics import classification_report
 from .preprocess_utils import preprocess_text
+from .data_utils import read_model_zoo, update_zoo, write_model_zoo
+from .constants import MODEL_CV_RESULT_PATH, TARGET_DICT, TARGET_INV_DICT
 
 
 def add_external_positive_data(x_series, y_series):
@@ -44,12 +42,13 @@ def run_cv(model_obj,
     :param model_obj: Model class
     :param model_params: Model paramaters, may vary depending on model architecture.
     :param input_df: Competition train dataframe with CV folds.
-    :fold_col: Fold column name. There are two types of fold schema: Public(public_fold) and Private(private_fold).
-    :x_col: Text feature column.
-    :y_col: Target column.
-    :experiment_name: If the model is to be saved in the model zoo, this parameter must be a unique string: 'dbmdz/bert-base-turkish-128k-uncased | epochs: 3 | batch_size: 32 | max_len: 128', e.g. 
-    :add_to_zoo: Add to the model zoo for model tracking.
-    :is_nn: If the model comes from NN based approach, set true.
+    :param fold_col: Fold column name. There are two types of fold schema: Public(public_fold) and Private(private_fold).
+    :param x_col: Text feature column.
+    :param y_col: Target column.
+    :param experiment_name: If the model is to be saved in the model zoo, this parameter must be a unique string: 'dbmdz/bert-base-turkish-128k-uncased | epochs: 3 | batch_size: 32 | max_len: 128', e.g. 
+    :param add_to_zoo: Add to the model zoo for model tracking.
+    :param is_nn: If the model comes from NN based approach, set true.
+    :return: Prints classification results, save OOF results, add to the model zoo with experiment name if add_to_zoo is set to True.
     """
     print()
     print("*"*30)

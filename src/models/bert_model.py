@@ -1,11 +1,15 @@
-import os
+import torch
 import time
-
+import random
 import pandas as pd
-from sklearn.metrics import f1_score
-from sklearn.model_selection import StratifiedKFold
-from torch.utils.data import DataLoader, TensorDataset
+import os
+import numpy as np
 from tqdm.auto import tqdm
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import f1_score
+from .base_model import BaseModel
 from transformers import (AdamW, AutoModelForMaskedLM,
                           AutoModelForSequenceClassification, AutoTokenizer,
                           DataCollatorForLanguageModeling, Trainer,
@@ -13,21 +17,22 @@ from transformers import (AdamW, AutoModelForMaskedLM,
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:21"
 
-import os
-import random
 
-import numpy as np
-import torch
-from torch.utils.data import Dataset
-
-from .base_model import BaseModel
-
-
-def get_optimizer_grouped_parameters(
-        model,
-        learning_rate, weight_decay,
-        layerwise_learning_rate_decay
-):
+def get_optimizer_grouped_parameters(model,
+                                     learning_rate,
+                                     weight_decay,
+                                     layerwise_learning_rate_decay
+                                     ):
+    """
+    Setting optimizer group paramaters.
+    ---------
+    param model: Backbone
+    param learning_rate: Learning rate
+    param weight_decay: Weight decay (L2 penalty)
+    param layerwise_learning_rate_decay: layer-wise learning rate decay: a method that applies higher learning rates for top layers and lower learning rates for bottom layers
+    return: Optimizer group parameters for training
+    """   
+    
     model_type = model.config.model_type
 
     if "roberta" in model.config.model_type:
@@ -63,9 +68,25 @@ def get_optimizer_grouped_parameters(
     return optimizer_grouped_parameters
 
 
-def get_llrd_optimizer_scheduler(model, learning_rate=1e-5, weight_decay=0.01,
-                                 layerwise_learning_rate_decay=0.95, num_warmup_steps=0,
+def get_llrd_optimizer_scheduler(model,
+                                 learning_rate=1e-5,
+                                 weight_decay=0.01,
+                                 layerwise_learning_rate_decay=0.95,
+                                 num_warmup_steps=0,
                                  num_training_steps=10):
+    
+    """
+    Setting optimizer and scheduler paramaters.
+    
+    ---------
+    param model: Backbone
+    param learning_rate: Learning rate
+    param weight_decay: Weight decay (L2 penalty)
+    param layerwise_learning_rate_decay: layer-wise learning rate decay: a method that applies higher learning rates for top layers and lower learning rates for bottom layers
+    param num_warmup_steps: warmup steps
+    param num_training_steps: Epoch size
+    return: Optimizer and scheduler parameters for training
+    """
     grouped_optimizer_params = get_optimizer_grouped_parameters(
         model,
         learning_rate, weight_decay,
@@ -84,7 +105,22 @@ def get_llrd_optimizer_scheduler(model, learning_rate=1e-5, weight_decay=0.01,
     return optimizer, scheduler
 
 
-def ohem_loss(preds, labels, weights, label_smoothing=0.05, epochnum=0):
+def ohem_loss(preds,
+              labels,
+              weights,
+              label_smoothing=0.05,
+              epochnum=0):
+    #TODO: epochnum?
+    """
+    OHEM (Online Hard Example Mining) loss for training.
+    
+    ---------
+    param preds: Predicted values.
+    param labels: Groundt truth labels.
+    param weights: A manual rescaling weight given to each class. 
+    param label_smoothing: A float in [0.0, 1.0]. Specifies the amount of smoothing when computing the loss, where 0.0 means no smoothing
+    return: Training loss.
+    """
     CE_LOSS_OBJ = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor(weights).cuda(),
                                             reduction="none",
                                             label_smoothing=label_smoothing
@@ -95,8 +131,14 @@ def ohem_loss(preds, labels, weights, label_smoothing=0.05, epochnum=0):
 
 
 def set_seed(seed=int):
-    '''Sets the seed of the entire notebook so results are the same every time we run.
-    This is for REPRODUCIBILITY.'''
+    """
+    Sets the seed for the entire environment so results are the same every time we run. This is for reproducibility.
+    
+    ---------
+    param seed: Seed number
+    return: Set seed for torch, numpy, random all over python methods. 
+    
+    """
     np.random.seed(seed)
     random_state = np.random.RandomState(seed)
     random.seed(seed)
@@ -110,15 +152,14 @@ def set_seed(seed=int):
 
 class MLMDataset(Dataset):
     """
-    This will be superseded by a framework-agnostic approach soon.
+    Create MLM dataset object
     """
 
-    def __init__(
-            self,
-            tokenizer,
-            text_list: list,
-            block_size: int = 128,
-    ):
+    def __init__(self,
+                 tokenizer,
+                 text_list: list,
+                 block_size: int = 128
+                 ):
         batch_encoding = tokenizer(text_list, add_special_tokens=True, truncation=True, max_length=block_size)
         self.examples = batch_encoding["input_ids"]
         self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
@@ -131,8 +172,8 @@ class MLMDataset(Dataset):
 
 
 class StratifiedBatchSampler:
-    """Stratified batch sampling
-    Provides equal representation of target classes in each batch
+    """
+    Stratified batch sampling provides equal representation of target classes in each batch
     """
 
     def __init__(self, y, batch_size, shuffle=True):
@@ -156,8 +197,12 @@ class StratifiedBatchSampler:
 
 
 class BertModel(BaseModel):
+    """
+    Fine-tune the given model for multiclass classification.
+    """
+    
     def __init__(self,
-                 model_path='sentence-transformers/paraphrase-multilingual-mpnet-base-v2',
+                 model_path='dbmdz/bert-base-turkish-128k-uncased',
                  auth_token=None,
                  tokenizer_max_len=64,
                  batch_size=32,
@@ -174,6 +219,10 @@ class BertModel(BaseModel):
                  out_folder=None,
                  experiment_name='',
                  ):
+        
+        """
+        Initiliaze model parameters for traning purpose.
+        """
 
         super().__init__()
         self.out_folder = out_folder
@@ -190,13 +239,15 @@ class BertModel(BaseModel):
         self.label_smoothing = label_smoothing
         self.grad_clip = grad_clip
         self.prevent_bias = prevent_bias
-
         self.mlm_pretrain = mlm_pretrain
         self.mlm_probability = mlm_probability
-
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def load(self):
+        """
+        Load model and tokenizer, send it to the device 
+        """
+        
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path,
                                                                         use_auth_token=self.auth_token,
                                                                         num_labels=5)
@@ -206,12 +257,29 @@ class BertModel(BaseModel):
                                                        ignore_mismatched_sizes=True,
                                                        add_prefix_space=True)
 
-    def save(self, path: str):
+    def save(self,
+             path: str):
+        """
+        Save fine-tuned model to the given path.
+        
+        ---------
+        param path: Model output path
+        return: Save trained model
+        """
         self.model.save_pretrained(path)
         self.tokenizer.save_pretrained(path)
 
     def train_mlm(self,
                   x_train):
+        
+        """
+        Train MaskedLM model.
+        
+        ---------
+        param x_train: train dataset
+        return: Save the trained model.
+        """
+        
         set_seed(42)
         model = AutoModelForMaskedLM.from_pretrained(self.model_path)
         tokenizer = AutoTokenizer.from_pretrained(self.model_path,
@@ -386,6 +454,7 @@ class BertModel(BaseModel):
 
     def predict(self,
                 x_test):
+        #TODO: Kullanılmıyorsa silelim.
         test_texts = x_test.to_list()  # list of validation texts
         test_encodings = self.tokenizer(test_texts,
                                         truncation=True,
@@ -420,7 +489,19 @@ class BertModel(BaseModel):
 
         return all_preds, all_probas
 
-    def evaluate(self, x_val, y_val):
+    def evaluate(self,
+                 x_val,
+                 y_val):
+        
+        """
+        Evaluate the model after epoch completed.
+        
+        ---------
+        param x_val: List of validation texts
+        param y_val: List of validation labels 
+        return: F1 macro and accuracy scores to evaluate the results.
+        """
+        
         val_texts = x_val.to_list()  # list of validation texts
         val_labels = y_val.to_list()  # list of validation labels (ints from 0 to num_labels-1)
         val_encodings = self.tokenizer(val_texts, truncation=True, padding=True, max_length=self.tokenizer_max_len)

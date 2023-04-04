@@ -2,11 +2,16 @@
 # coding: utf-8
 
 import argparse
-
 from models.voting_bert_model import VotingBertModel
 
-
 def main(args):
+    """
+    Main function to run VotingBertModel
+    
+    ---------
+    param args: Training arguments
+    return: Create ensemble model save as a bin file for inference.
+    """
     vem = VotingBertModel(checkpoint_list=args.checkpoint_paths)
     vem.save(args.output_path)
 

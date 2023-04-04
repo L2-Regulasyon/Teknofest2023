@@ -2,11 +2,10 @@
 # coding: utf-8
 
 import argparse
-
-from models.bert_model import BertModel
-from utils.data_utils import read_training_data
-from utils.pipeline_utils import add_external_positive_data, run_cv
 from utils.preprocess_utils import preprocess_text
+from utils.pipeline_utils import add_external_positive_data, run_cv
+from utils.data_utils import read_training_data
+from models.bert_model import BertModel
 
 
 def main(args):

@@ -1,11 +1,15 @@
-import gradio as gr
 import torch
-from torch.utils.data import DataLoader, TensorDataset
-from tqdm.auto import tqdm
+import gradio as gr
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from tqdm.auto import tqdm
+from torch.utils.data import DataLoader, TensorDataset
 
 
 class VotingBertModel(torch.nn.Module):
+    
+    """
+    Voting fold ensemble class for robust predictions.
+    """
     def __init__(self,
                  checkpoint_list=[],
                  batch_size=64,

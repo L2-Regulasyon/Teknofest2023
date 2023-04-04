@@ -1,15 +1,14 @@
 # THIS SCRIPT IS PROVIDED BY THE ORGANIZATOR
 
-import os
 import re
-
-import gradio as gr
 import pandas as pd
+import os
 import numpy as np
-
-from src.models.bert_model import BertModel
-from src.utils.constants import TARGET_DICT, TARGET_INV_DICT
+import gradio as gr
 from src.utils.preprocess_utils import preprocess_text
+from src.utils.constants import TARGET_DICT, TARGET_INV_DICT
+from src.models.bert_model import BertModel
+
 
 # CV Voting Model Load
 # For model class import, model checkpoint looks for models sub-dir
@@ -43,7 +42,16 @@ fully_unbiased_model.load()
 
 
 # Cased-Sentence ratio
-def get_uppercase_sentence_ratio(input_df):
+def get_uppercase_sentence_ratio(input_df:pd.DataFrame):
+    
+    """
+    Get uppercase ratio. 
+    
+    ---------
+    param input_df: input dataframe
+    return: Uppercase sentence ratio
+    """
+    
     def find_uppercase(text):
         pattern = '[A-Z]'
         rgx = re.compile(pattern)
@@ -58,14 +66,24 @@ def get_uppercase_sentence_ratio(input_df):
 
 
 # Authorization routine
-def auth(username, password):
+def auth(username,
+         password):
     if username == "L2_Regulasyon" and password == os.environ["space_auth_pass"]:
         return True
     else:
         return False
 
 
-def predict(df):
+def predict(df:pd.DataFrame):
+    
+    """
+    Model inference for gradio app. 
+    
+    ---------
+    param input_df: input dataframe
+    return: Dataframe with wanted columns.   
+    """
+    
     df["is_offensive"] = 1
     df["target"] = "OTHER"
 
@@ -107,7 +125,8 @@ def get_file(file):
     return (output_file)
 
 
-def demo_inference(selected_model, input_text):
+def demo_inference(selected_model,
+                   input_text):
     input = pd.Series([input_text])
 
     if selected_model == "Yarışma Modeli":

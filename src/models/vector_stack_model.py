@@ -1,11 +1,13 @@
-import fasttext
 import scipy
+import fasttext
 from tqdm import tqdm
-
 from .base_model import BaseModel
 
-
 class VectorStackModel(BaseModel):
+    
+    """
+    Training and inferece class for Stage 2. This class can bu used for lgbm, xgb, catboost, fasttext, tfidf models.
+    """
     def __init__(self,
                  vector_model=None,
                  vector_model_args={},
@@ -21,6 +23,14 @@ class VectorStackModel(BaseModel):
     def train(self,
               x_train,
               y_train):
+        """
+        Train Stage 2 model.
+    
+        ---------
+        param x_train: Train embeddings
+        param y_train: Target
+        return: Trained model
+        """
 
         if self.vector_model == "fasttext":
             with open('temp_fasttext_train.txt', 'w', encoding='utf-8') as f:
@@ -38,6 +48,12 @@ class VectorStackModel(BaseModel):
 
     def predict(self,
                 x_test):
+        """
+        Inference on new data.
+        
+        param x_test: Test embeddings
+        return: class softmax and argmax predictions.
+        """
         x_test = self.vector_model.transform(x_test)
         pred = self.head_model.predict(x_test).flatten().tolist()
         pred_proba = self.head_model.predict_proba(x_test)

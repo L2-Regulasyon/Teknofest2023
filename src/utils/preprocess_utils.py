@@ -28,12 +28,14 @@ class TextNormalization:
                   normalize_function: str = "NFKC",
                   is_turkish: bool = True,
                   use_zemberek: bool = True):
-        """Preprocess text by removing extra space and normalizing via python-unicodedata library.
+        """
+        Preprocess text by removing extra space and normalizing via python-unicodedata library.
+        
+        ---------
         :param str text: Text for normalization
         :param bool remove_space: Whether remove empty spaces or not (defaults to True)
         :param bool do_lower_case: Whether do lower case or not (defaults to True)
-        :param str normalize_function: Unicodedata normalize function.
-            Either "NFC", "NFKC", "NFD" or "NFKD". (defaults to "NFKC")
+        :param str normalize_function: Unicodedata normalize function. Either "NFC", "NFKC", "NFD" or "NFKD". (defaults to "NFKC")
         :param bool is_turkish: Whether text is in Turkish or not (defaults to True)
         :param bool use_zemberek: Whether to use Zemberek-Python's normalizer. Always do lowercase inside (defaults to True)
         :return: Normalized text
@@ -65,6 +67,13 @@ class TextNormalization:
 
 # Lowercasing with special token
 def special_lowercase(x):
+    """"
+    Add special token if text contains upper chars.
+    
+    ---------
+    param x: Text
+    return: Adjusted text
+    """
     chars = []
     for char in x:
         if char.lower() != char:
@@ -77,6 +86,13 @@ def special_lowercase(x):
 
 # Word Count Feature
 def feature_wordcount(x):
+    """
+    Count the word in a text using string split() function. If the length condition met, add special token
+    
+    ---------
+    param x: Text
+    return: Adjusted text
+    """
     length = len(x.split())
     if length < 5:
         return "+ " + x
@@ -88,6 +104,15 @@ def feature_wordcount(x):
 
 def preprocess_text(textcol,
                     prevent_bias=0):
+    
+    """
+    Remove punctuations, prevent the bias by bias level
+    
+    ---------
+    param textcol: Text
+    param prevent_bias: bias level. 0 means fully-unbiased, > 0 means casing-unbiased
+    return: Adjusted text
+    """
     # textcol.values[:] = [" ".join(elm.strip().split()) for elm in tqdm(textcol.values)]
     # textcol.values[:] = [unicodedata.normalize("NFKC", elm) for elm in tqdm(textcol.values)]
     # textcol.values[:] = ["".join([c for c in elm if not unicodedata.combining(c)]) for elm in tqdm(textcol.values)]

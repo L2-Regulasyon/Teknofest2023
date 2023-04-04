@@ -1,8 +1,8 @@
 # HF Bert Model Upload Script
 from huggingface_hub import HfApi
 
+# Push the trained model to the Huggingface Hub for inference purpose
 local_path = f'../checkpoint/toxic-dbmdz-bert-base-turkish-128k-uncased/'
-
 api = HfApi()
 repo = "toxic-dbmdz-bert-base-turkish-128k-uncased"
 

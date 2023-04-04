@@ -2,18 +2,20 @@
 # coding: utf-8
 
 import argparse
-
-from catboost import CatBoostClassifier
-from lightgbm import LGBMClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
 from xgboost import XGBClassifier
-
-from models.vector_stack_model import VectorStackModel
-from utils.data_utils import read_training_data
 from utils.pipeline_utils import run_cv
+from utils.data_utils import read_training_data
+from sklearn.feature_extraction.text import TfidfVectorizer
+from models.vector_stack_model import VectorStackModel
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
 
 
 def main(args):
+    
+    """
+    Trainer for lgbm, xgb, catboost, fasttext, tfidf models.
+    """
     df = read_training_data()
 
     if args.head_model == "lgbm":

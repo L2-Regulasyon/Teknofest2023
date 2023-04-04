@@ -1,9 +1,7 @@
-from lightgbm import LGBMClassifier
 from sentence_transformers import SentenceTransformer, util
-
-from .base_model import BaseModel
+from lightgbm import LGBMClassifier
 from .bert_model import BertModel
-
+from .base_model import BaseModel
 
 class EmbeddingStackModel(BaseModel):
     def __init__(self,
