@@ -57,11 +57,11 @@ Eğitilen parametrelerin büyüklüklerini belirli bir değeri geçmeyecek şeki
 
 ### 1.7. Weight Decay
 
-Lorem ipsum
+Weight Decay, loss fonksiyonuna overfit’i engellemek için parametre büyüklüğüne göre penaltı ekler. Overfitting’i azaltmak için bu metodu da parametrik olarak mevcut akışımıza ekledik. Bu penaltıya göre, sinir ağı eğitilirken, mevcut iterasyonda büyük parametreler kullanılıyorsa, daha büyük loss elde edilirken, örneğin L2 norm uygulandığı durumda elde edilen küçük parametreler ile daha küçük loss elde edilir. Böylelikle, sinir ağının kararına parametrelerin büyüklük olarak önemli bir alt kümesinden ziyade, parametrelerin geneli karar verdiğinden, modelin farklı veri desenlerine genelleşmesi daha olası hale gelmektedir.
 
 ### 18. Label Smoothing
 
-Lorem ipsum
+Label Smoothing, loss fonksiyonu olarak, cross-entropy kullanırken, sinir ağı mimarisinin eğitim verisine overfit olmasını engelleyen diğer bir regülarizasyon tekniği kullandık.. Bu teknik, modelin doğru sınıf üzerindeki kararlılığını azaltarak, görülmeyen verinin eğitim verisine benzeme varsayımı konusunda daha az katı modeller eğitmeye yaramaktadır.
 
 ### 1.9. LLRD Decay - [Referans](https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e)
 
@@ -73,7 +73,16 @@ Fine-tune ettiğimiz modelin kullanacağı kelimelerin anlam temsillerini iyile�
 
 ### 1.11. Model-Data Unbiasing
 
-Lorem ipsum
+Yarışmada kullandığımız veriyi inceleyerek, bu verinin gerçek dünya verisinde(mevcut eğitim setinden daha büyük ve çeşitli örneklemde) hangi zorluklarla karşılaşabilceğini tespit ettik. Belirlediğimiz aksiyonlarla da, yarışma verisine özel biasları engellemeye çalıştık.
+
+Tespit ettiğimiz bias’lar;
+
+- OTHER sınıfının, cümle ve kelime sayısı, diğer sınıflardan daha büyüktü. Bu durum, metin belirli bir kelime sayısını geçince, OTHER sınıfına karar verilebilme ihtimalini arttıran bir durum. Gerçek dünya verisinde, diğer sınıfların kelime sayısı büyüklüğünün de eğitim setindeki OTHER ile aynı seviyelerde olma ihtimaline karşı, max_len’i 64’e eşitleyerek bu durumun karara etki etmemesini sağladık.
+
+- Eğitim verisinde, kadın / erkek kelimeleri SEXIST sınıfı için, milliyet ifade eden kelimelerin, OTHER sınıfında temsilleri olmadığı için, bu kelimeler her görüldüğünde SEXIST, RACIST olarak etiketleniyordu. Bu durumu engellemek için, dış veri toplayarak eğitim setini büyüttük.
+
+- Eğitim setinde, büyük/küçük harf kullanım oranına göre, sınıfların içerdiği leak mevcuttu. Örneğin, OTHER sınıfı metne neredeyse tamamen küçük harfle başlamaktaydı. Modeli büyük/küçük harf duyarlı seçseydik, bu bilgiyi öğrenerek, gerçek hayatta metni büyük harfle başlayanlara OTHER olarak karar verme ihtimali az olacaktı. Bu yüzden büyük/küçük harfli modeller(cased) kullanmadık.
+
 
 ## 2. Model Validasyonu
 
