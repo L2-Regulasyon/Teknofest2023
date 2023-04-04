@@ -11,88 +11,92 @@
 
 ### 1.1. StratifiedBatchSampler - [Referans](https://discuss.pytorch.org/t/how-to-enable-the-dataloader-to-sample-from-each-class-with-equal-probability/911/7)
 
-### 1.2. 'Early Stopping' Olmaksızın Eğitim
-
-Her iterasyon sırasında kullanılcak örneklem sayısı(batch_size) parametresi ve her örnekleme düşen veri dağılımı, eğitim performansı gelişimini hızlandırma veyahut stabilleştirmesine etki eder. Eğer düşük örneklem sayısı kullanılırsa, batch’lere düşen veri tek bir sınıftan oluşabilir, ya da tüm sınıfları içercek şekilde örneklem oluşturmaz. Bu da aşağıdaki sonuçlara yol açabilir.
+Her iterasyon sırasında kullanılacak `batch_size` parametresi ve her örnekleme düşen veri dağılımı, eğitim performansı gelişimini hızlandırma veyahut stabilleştirmesine etki eder. Eğer düşük örneklem sayısı kullanılırsa, batch’lere düşen veri tek bir sınıftan oluşabilir, ya da tüm sınıfları içercek şekilde örneklem oluşturmaz. Bu da aşağıdaki sonuçlara yol açabilir.
 
   * Daha uzun eğitim süresi    
-  * Sayıca daha az temsil edilen sınıflarda daha az tahmin performansı(daha az genelleşebilme)
+  * Sayıca daha az temsil edilen sınıflarda daha az tahmin performansı (daha az genelleşebilme)
 
-Bunları engellemek için oluşturduğumuz çözümde, StratifiedBatchSampler sınıfı ile, eğitim sırasındaki örneklemlerin, her sınıftan eşit sayıda örnek barındırmasını sağladık.
+Bunları engellemek için oluşturduğumuz çözümde `StratifiedBatchSampler` sınıfı ile eğitim sırasındaki mini-batchlerin her sınıftan eşit sayıda örnek barındırmasını sağladık.
 
-Örneğin,  örneklem sayısı 8 ise, StratifiedBatchSampler kullanmadan,
+Örneğin,  örneklem sayısı 8 ise, StratifiedBatchSampler kullanmadan:
 
 	['OTHER', 'OTHER','OTHER','OTHER','OTHER','OTHER', 'SEXIST', 'RACIST']
 
-şeklinde örneklem oluşabiliyorsa,    
-
-StratifiedBatchSampler kullanırken, her örneklem aşağıdaki gibi her sınıftan yaklaşık olarak eşit sayıda örnek içerir.
+şeklinde örneklem oluşurken; StratifiedBatchSampler kullanarak her sınıftan aşağıdaki şekilde yaklaşık olarak eşit sayıda örnek toplanabilir:
 
 	['PROFANITY', 'SEXIST', 'OTHER', 'SEXIST', 'RACIST', 'INSULT', 'OTHER', 'INSULT']
 
-### 1.2. 'Early Stopping' Olmaksızın Eğitim
+Bu teknik eğitim-validasyon skorumuz arasındaki açıklığı azaltmada etkili olmuştur.
 
-Eğitim sırasında test kümesine göre başarıyı takip ederek, belirli bir iterasyon boyunca başarı iyileşmiyorsa, overfittingi engellemek için kullanılan ‘early stopping’ tekniğini kullanmama kararı aldık. Çünkü, kullanılması halinde, eğitimi başarısını raporlayacağı kümedeki performans, maksimuma ulaştığında durduğu için, iyimser bir raporlama yapılmasına yol açmaktadır.
+### 1.2. 'Early Stopping' Kapalı Eğitim
 
-### 1.3. Loss Fonksiyonu Belirlemesi - [Referans](https://arxiv.org/abs/1604.03540v1)
+Eğitim sırasında test kümesine göre başarıyı takip ederek belirli bir iterasyon boyunca başarı iyileşmiyorsa overfittingi engellemek için kullanılan ‘early stopping’ tekniğini kullanmama kararı aldık. Bu metot kullanıldığında raporlayacağı kümedeki performans azalmaya başladığında süreci durdurduğu için, iyimser bir raporlama yapılmasına yol açacaktır. Eğitim sürecimizi gerçek hayat senaryolarındaki gibi _test verisini bilmeyeceğimizi_ varsayarak tasarladığımız için cross-validation süreci boyunca da test verisinden alınan herhangi bir bilginin eğitim sürecini etkilemesine izin vermedik.
 
-Ödül fonksiyonu olarak, Cross-Entropy fonksiyonun bir uzantısı olan OHEM(Online Hard Example Mining) fonksiyonunu kullandık.
+### 1.3. Online Hard Example Mining (OHEM) - [Referans](https://arxiv.org/abs/1604.03540v1)
 
-Bu yöntem, çoklu sınıflandırma problemlerinde, zor örneklerin tahmin edilememesi durumunda, daha çok penaltı vererek, parametrelerin buna uyum sağlamasını sağlatıyor.
+Modeli multi-class problem için eğitebilmek adına Cross-Entropy loss fonksiyonunu `Online Hard Example Mining` yaklaşımı ile kullandık. Bu yaklaşım, kolay örneklerin loss'u domine edip zor örneklerinin öneminin azaldığı durumları engellemek için kullanılıyor. Model'in örneklerden aldığı loss'un sadece en yüksek `%k` lık bir dilimi hesaba katılıyor. Böylelikle model ne kadar iyileşirse iyileşsin hep örneklerin en zor `%k` lık diliminden loss feedback alıyor.
 
-Ayrıca, her sınıfın eğitim örneği eşit olmadığı için, bu dengesizlikten az temsil edilen sınıfların da öğrenimini iyileştirmek için, sınıf ağırlıkları(az temsil edilen sınıf, daha önemli olmak üzere) kullandık.
+### 1.4. Sınıf Ağırlıklandırma
 
-Ağırlıklar, aşağıdaki fonksiyona göre belirlendi.
+Her sınıfın eğitim örneği eşit sayıda olmadığı için az temsil edilen sınıfların da öğrenimini iyileştirmek adına sınıf ağırlıkları _(az temsil edilen sınıf, daha önemli olacak şekilde)_ belirledik.
 
+Ağırlıklar, aşağıdaki yaklaşım ile belirlendi. Örnekte her sınıfın diğer sınıflara göre bulunma katsayısının **küpkökü** oranında değer düşüşü yaşamaktadır.
 ```
 cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) ** (1 / 3))).items())).values())
 cls_weights /= min(cls_weights)
 ```
 
-### 1.4. Eğitim Şeması Ve Parametreleri
+### 1.5 Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules)
 
-#### 1.4.1. Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules)
+Belirli bir ısınma süreci boyunca hedef learning rate’a kadar küçük oranlarla artan, belirlenen learning rate’e ulaştığında eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık. Bu teknik özellikle fine-tuning eğitimlerinde halihazırdaki weight'leri daha ilk iterasyonlarda aşırı değiştirip modelin bütün embedding yapısını bozmamak adına önemlidir.
 
-Belirli aşama boyunca, başlangıçta verilen learning rate’den düşük olcak şekilde, küçük oranlarla artan, belirlenen learning rate’e ulaştığında, eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık.
-
-#### 1.4.2. Gradient Clipping - [Referans](https://neptune.ai/blog/understanding-gradient-clipping-and-how-it-can-fix-exploding-gradients-problem#:~:text=What%20is%20gradient%20clipping%3F,gradients%20to%20update%20the%20weights.)
+### 1.6. Gradient Clipping - [Referans](https://neptune.ai/blog/understanding-gradient-clipping-and-how-it-can-fix-exploding-gradients-problem#:~:text=What%20is%20gradient%20clipping%3F,gradients%20to%20update%20the%20weights.)
 
 
-Eğitilen parametrelerin büyüklüklerinin, belirli büyüklüğü geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense, genele yayıp parametreler üstünde regülarizasyon etkisi görüyor.
+Eğitilen parametrelerin büyüklüklerini belirli bir değeri geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense gradyanların genele yayılıp parametreler üstünde regülarizasyon etkisi yaratılmasını sağlıyor.
 
-#### 1.4.3. LLRD Decay - [Referans](https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e)
+### 1.7. Weight Decay
 
-Model mimarilerinin, embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
+Lorem ipsum
 
-### 1.5. Masked Language Modelling(Pretraining Tekniği) - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling)
+### 18. Label Smoothing
 
+Lorem ipsum
 
-Fine-tune ettiğimiz problemdeki kelimelerin anlam temsillerini iyileştirmek, bağlamı daha iyi anlatabilmek için, metindeki bazı kelimeleri gizleyip, tahmin ettirdiğimiz bir dil modellemesi eğitim tekniği kullandık.  Dil modelleri de, metindeki bağlamı öğrenmek için, kelimelerin anlamları ve kelimelerin bir araya gelmesinden oluşan semantik anlamı modellemesi gerekmektedir. Bu modellerin eğitimleri, bir metnin içerisindeki bazı kelimeler gizlenip/değiştirilip, bağlama uyan doğru kelimeyi bulabilme ödülü ile eğitilir. Bu teknik, dil modeli eğitilirken kullanıldığı gibi, fine-tune ederken de kullanılabilir. Böylece, mevcut model mimarisini, mevcut göreve ait veri setindeki bağlama uyum sağlatarak regülarizasyon görevi görür.
+### 1.9. LLRD Decay - [Referans](https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e)
+
+Model mimarilerinin embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
+
+### 1.10. Masked Language Modeling - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling)
+
+Fine-tune ettiğimiz modelin kullanacağı kelimelerin anlam temsillerini iyileştirmek ve veri bağlamını daha iyi anlatabilmek adına; metindeki bazı kelimeleri gizleyip gizlenmiş kısmı modele tahmin ettirdiğimiz bir eğitim tekniği kullanmayı denedik.  Modellerin alan spesifik bir bağlamı öğrenmeleri için, kelimelerin anlamlarının ve kelimelerin bir araya gelmesinden oluşan anlamların öğretilebilmesi gerekmektedir. Bu eğitimler, bir metnin içerisindeki bazı kelimeler gizlenip/değiştirilip, bağlama uyan doğru kelimeyi bulabilme ödülü ile eğitilir. Bu yaklaşım dil modeli eğitilirken kullanıldığı gibi, fine-tune ederken de kullanılabilir. Böylece mevcut modele yeni veri setindeki bağlama uyum sağlatarak modelin bir ısınma (pre-training) sürecinden geçmiş olması sağlanır.
+
+### 1.11. Model-Data Unbiasing
+
+Lorem ipsum
 
 ## 2. Model Validasyonu
 
-### 2.1. Public - Private Folding
+### 2.1. Public - Private Folds
 
-Projede denenen model mimarisi ve parametrelerinin başarı performansının, aynı validasyon yöntemi ve datayla raporlanması için örneklere fold atama sürecini utils/generate_data.py adlı bir scriptte gerçekleştirdik.
+Projede denenen model mimarilerinin başarı performansının, aynı validasyon yöntemi ve test verisi ile raporlanması için örneklere fold atama süreci [generate_data.py](generate_data.py) adlı scriptte gerçekleştirildi.
 
-Teknofest tarafından verilen veriye, iki farklı seed ile, iki farklı fold tanımı yapıldı. Bu foldlara, public ve private isimleri verildi. Geliştirmeler ağırlık olarak public fold ile yapılırken, seyrek olarak da private fold ile public fold arasındaki korelasyona bakıldı. Bunun amacı, public foldda düzenli olarak iyileşme görürken, private’de aynı etkide gelişme görülmesini beklemekti. Aksi durum, skor gelişimi yapan geliştirmelerin, farklı seed’lere genelleşemediği, yani mevcut CV’ye overfit olabilme riski taşıdığını gösterecekti.
+Organizatör tarafından verilen veriye iki farklı seed ile, iki farklı fold tanımı yapıldı. Bu foldlara `public` ve `private` isimleri verildi. Geliştirmeler ağırlık olarak `public` fold ile yapılırken, seyrek olarak da `private` fold ile `public` fold arasındaki korelasyona bakıldı. Bunun amacı, public fold'da düzenli olarak iyileşme görürken private’de aynı etkide gelişme görülmesini beklemekti. Aksi durum; skor gelişimi yapan geliştirmelerin farklı seed’lere genelleşemediği, yani mevcut CV’ye overfit olabilme riski olduğunu gösterecekti.
 
-### 2.2. OOF Evaluation - [Referans](https://machinelearningmastery.com/out-of-fold-predictions-in-machine-learning/#:%7E:text=An%20out%2Dof%2Dfold%20prediction,example%20in%20the%20training%20dataset.)
+### 2.2. Out-of-Fold (OOF) Evaluation - [Referans](https://machinelearningmastery.com/out-of-fold-predictions-in-machine-learning/#:%7E:text=An%20out%2Dof%2Dfold%20prediction,example%20in%20the%20training%20dataset.)
 
 
-Eğitilen modelin ne kadar başarılı olduğunun değerlendirmesini Out-Of-Fold skoru tekniğine göre yaptık. Bu teknik, veriyi bir cross-validation şemasına göre böldükten sonra, örneğin 5 Fold StratifiedKFold, her foldun eğitim kümesinde eğitim yapıp, test kümesini skorladıktan sonra, skorlanan test kümelerini birleştirir. Böylece, eğitim kümesindeki her örneğin, test setindeki performansına erişebildiğinizden, genelleşebilme performansını tam kapasiteyle test edebilmiş olmaktayız.
+Eğitilen modelin ne kadar başarılı olduğunu Out-of-Fold tekniğiniyle skorlayarak değerlendirdik. Bu teknik, veriyi bir cross-validation şemasına göre böldükten sonra _(örneğin 5 Fold StratifiedKFold)_ her foldun eğitim kümesinde eğitim yapıp test kümesini skorladıktan sonra, skorlanan test kümelerini birleştirir. Böylece, eğitim kümesindeki her örneğin test setindeki performansına erişilebilir ve bütün veriye ait tek bir genelleşebilme performansı metriği üretilebilir.
 
 ## 3. Model Başarı Takibi (Model Zoo)
 
-Model geliştirme süreci boyunca yapılan hiperparametre ve model mimarisi seçimlerinden kaynaklanan performans değişimlerini takip etmek ve en iyilerini seçmek amacıyla, experiment tracking modülü geliştirdik. Bu yapıya src klasöründeki eğitim scriptleriyle yapılan denemeler –add-zoo parametresi eklenerek, deneylerin başarı performansları kayıt altına alınabilir.
+Model geliştirme süreci boyunca yapılan hiperparametre ve model mimarisi seçimlerinden kaynaklanan performans değişimlerini takip etmek ve en iyilerini seçmek amacıyla bir deney takip modülü geliştirdik. `src` klasöründeki eğitim kodlarına `–-add-zoo` parametresi eklenerek deneylerin başarı performansları kayıt altına alınabilir.
 	
-Örneğin, aşağıdaki komut ile
+Örneğin, aşağıdaki komut ile eğitim tamamlandıktan sonra `data/model_zoo.json` dosyasına `TFIDF_LGBM` adlı bir deney sonucu kaydedilecektir.
 
 ```
-python train_vector_stack.py -vector-model tfidf -head-model lgbm -experiment-name TFIDF_LGBM -fold-name public_fold --add-zoo
+python train_vector_stack.py -vector-model tfidf -head-model lgbm -experiment-name TFIDF_LGBM --add-zoo
 ```
-
-eğitim tamamlandıktan sonra data/model_zoo.json dosyasına ‘TFIDF_LGBM’ adlı bir experiment kaydedilecektir.
 
 ---
 
