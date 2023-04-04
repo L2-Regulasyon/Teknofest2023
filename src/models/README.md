@@ -35,8 +35,8 @@ Aşağıda tahminleme süreci boyunca denemiş olduğumuz embedding modeller ve 
 ### 3.1. Embedding Model Havuzu
 Aşama 1 olarak adlandırabileceğimiz bu kısım, bizlere iletilen `df['text']` sütunundaki metinleri sayısal olarak `N` boyutunda bir vektörde temsil etmemizi sağlamaktadır. Böylece AŞama 2'de sınıflandırma görevi için modellere öznitelik (feature) sağlayabiliriz. Aşama 1'de oluşturulan vektörler probleme ne kadar uyumlu olursa, sınıflandırma aşaması sonuçlarının da o kadar iyileşmesi beklenmektedir. Bu nedenle farklı mimarileri (architecture) içeren geniş bir havuz oluşturmayı hedefledik ve aşağıdaki gibi listeledik.
 
-#### 3.1.1. TF-IDF 
-TF-IDF, bir belgedeki (corpus) her bir kelimenin değerlerini, belirli bir belgedeki kelimenin sıklığı ile kelimenin göründüğü belgelerin yüzdesinin tersiyle hesaplar. Temel olarak TF-IDF, belirli bir belgede kelimelerin göreceli sıklığını, bu kelimenin tüm veri seti üzerindeki tersine oranına göre belirleyerek çalışır. Sezgisel olarak, bu hesaplama, belirli bir kelimenin belirli bir belge ile ne kadar alakalı olduğunu belirler. Tek veya küçük bir belge grubunda ortak olan kelimeler genel kelimelerden daha yüksek TFIDF numaralarına sahip olma eğilimindedir [(Kaynak)](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547).
+#### 3.1.1. TF-IDF - [Referans](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547)
+TF-IDF, bir belgedeki (corpus) her bir kelimenin değerlerini, belirli bir belgedeki kelimenin sıklığı ile kelimenin göründüğü belgelerin yüzdesinin tersiyle hesaplar. Temel olarak TF-IDF, belirli bir belgede kelimelerin göreceli sıklığını, bu kelimenin tüm veri seti üzerindeki tersine oranına göre belirleyerek çalışır. Sezgisel olarak, bu hesaplama, belirli bir kelimenin belirli bir belge ile ne kadar alakalı olduğunu belirler. Tek veya küçük bir belge grubunda ortak olan kelimeler genel kelimelerden daha yüksek TFIDF numaralarına sahip olma eğilimindedir.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/42123801/229319826-1fedf02c-a2d7-485a-8cb0-782cbdb75b3e.png" width="400"/>
@@ -44,8 +44,8 @@ TF-IDF, bir belgedeki (corpus) her bir kelimenin değerlerini, belirli bir belge
 
 TF-IDF için hem karakter bazlı hem de kelime bazlı yaklaşımlar denedik. Uygulama yöntemleri için: [TfidfVectorizer](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html) 
 
-#### 3.1.2. FastText
-FastText 2016 yılında Facebook tarafından geliştirilen Word2Vec tabanlı bir modeldir. Bu yöntemin Word2Vec’ten farkı, kelimelerin ngramlara ayrılmasıdır. Böylece Word2Vec ile yakalanamayan anlam yakınlığı bu yöntemle yakalanabilir [(Kaynak)](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547).
+#### 3.1.2. FastText - [Referans](https://dergipark.org.tr/tr/pub/deumffmd/issue/59584/678547)
+FastText 2016 yılında Facebook tarafından geliştirilen Word2Vec tabanlı bir modeldir. Bu yöntemin Word2Vec’ten farkı, kelimelerin ngramlara ayrılmasıdır. Böylece Word2Vec ile yakalanamayan anlam yakınlığı bu yöntemle yakalanabilir.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/42123801/229319555-81cd444f-a478-44ac-85b9-d8cd596e5231.png" width="800"/>
@@ -53,9 +53,9 @@ FastText 2016 yılında Facebook tarafından geliştirilen Word2Vec tabanlı bir
 
 FastText için `skipgram` ve `cbow` mimarilerini denedik. Uygulama yöntemler için: [train_unsupervised](https://fasttext.cc/docs/en/python-module.html)
 
-#### 3.1.3. BERT Backbone
+#### 3.1.3. BERT Backbone - [Referans](https://dergipark.org.tr/tr/pub/tbbmd/issue/66300/1004781)
 
-BERT modeli, bir sorguyu ve bir dizi anahtar-değer çiftini bir çıktıya eşlemektedir. Burada sorgu, anahtarlar, değerler ve çıktının kendi aralarındaki korelasyonu ifade edecek vektörler oluşmaktadır. Çıktı, değerlerin ağırlıklı toplamı ile hesaplanmaktadır. Bir değere atanan ağırlık ise sorguya karşılık gelen anahtarla uyumluluk oranı ile hesaplanmaktadır [(Kaynak)](https://dergipark.org.tr/tr/pub/tbbmd/issue/66300/1004781).
+BERT modeli, bir sorguyu ve bir dizi anahtar-değer çiftini bir çıktıya eşlemektedir. Burada sorgu, anahtarlar, değerler ve çıktının kendi aralarındaki korelasyonu ifade edecek vektörler oluşmaktadır. Çıktı, değerlerin ağırlıklı toplamı ile hesaplanmaktadır. Bir değere atanan ağırlık ise sorguya karşılık gelen anahtarla uyumluluk oranı ile hesaplanmaktadır.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/42123801/229323836-7ef22f6b-69a6-488c-bee8-7813dded4331.png" width="400"/>
@@ -74,23 +74,22 @@ Model Listesi:
 - [dbmdz/bert-base-turkish-128k-uncased](https://huggingface.co/dbmdz/bert-base-turkish-128k-uncased)
 
 
-#### 3.1.4. RoBERTa Backbone
+#### 3.1.4. RoBERTa Backbone - [Referans](https://arxiv.org/abs/1907.11692)
 
-roBERTa (Robustly Optimized BERT pre-training Approach) modellerinin BERT modellerinden ayrıştığı nokta maskingdir. BERT veri hazırlanma aşamasında yalnızca bir kere, statik bir masking yöntemi kullanırken; ROBERTA her bir epoch'da dynamic masking yapmaktadır ve bu nedenle robust olarak atfedilmektedir [(Kaynak)](https://arxiv.org/abs/1907.11692).
+roBERTa (Robustly Optimized BERT pre-training Approach) modellerinin BERT modellerinden ayrıştığı nokta maskingdir. BERT veri hazırlanma aşamasında yalnızca bir kere, statik bir masking yöntemi kullanırken; ROBERTA her bir epoch'da dynamic masking yapmaktadır ve bu nedenle robust olarak atfedilmektedir.
 
 Model Listesi:
 - [xlm-roberta-base](https://huggingface.co/xlm-roberta-base)
 - [xlm-roberta-large](https://huggingface.co/xlm-roberta-large)
 
-#### 3.1.5. Sentence Transformers Backbone
+#### 3.1.5. Sentence Transformers Backbone - [Referans](https://arxiv.org/abs/1908.10084)
 
-Kullandığımız Sentence Transformerların hepsi BERT ailesine aittir. Sentence Transformerslar genellikle metin ve görsellerin belirli bir vektör uzayında benzerliklerini daha hızlı tespit edebilmek adına geliştirilmiş ve daha çok unsupervised görevlerde kullanılmaktadırlar [(Kaynak)](https://arxiv.org/abs/1908.10084). 
+Kullandığımız Sentence Transformerların hepsi BERT ailesine aittir. Sentence Transformerslar genellikle metin ve görsellerin belirli bir vektör uzayında benzerliklerini daha hızlı tespit edebilmek adına geliştirilmiş ve daha çok unsupervised görevlerde kullanılmaktadırlar.
 
 Model Listesi:
 - [sentence-transformers/paraphrase-multilingual-mpnet-base-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2)
 - [sentence-transformers/all-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)
 - [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-
 
 ---
 
@@ -98,27 +97,27 @@ Model Listesi:
 
 Bu kısımda Aşama 1'de elde edilen vektörler/öznitelikler kullanılarak farklı mimarilerle sınıflandırma görevi gerçekleştirilmiştir. 
 
-#### 3.2.1. LightGBM
+#### 3.2.1. LightGBM - [Referans](https://lightgbm.readthedocs.io/en/v3.3.2/Features.html)
 
 LightGBM, histogram tabanlı çalışan bir boosting (ensemble) yöntemidir. Sürekli değerleri kesikli formata dönüştürerek hesaplama gücü gereksinimi azaltır ve hızı artırır.
 
 LightGBM leaf-wise bölünme yöntemini kullanmaktadır:
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/42123801/229350911-5bf5f795-e591-4cad-b945-f7f96decf111.png" width="800"/>
+  <img src="https://user-images.githubusercontent.com/42123801/229350911-5bf5f795-e591-4cad-b945-f7f96decf111.png" width="700"/>
 </p>
 
-Leaf-wise yaklaşım veriseti küçük olduğunda overfit riski doğurmaktadır ancak doğru parametre seti ile bu tür riskler ortadan kaldırılabilir [(Kaynak)](https://lightgbm.readthedocs.io/en/v3.3.2/Features.html). 
+Leaf-wise yaklaşım veriseti küçük olduğunda overfit riski doğurmaktadır ancak doğru parametre seti ile bu tür riskler ortadan kaldırılabilir.
 
-#### 3.2.2. XGBoost
+#### 3.2.2. XGBoost 
 XGBoost'da (Extreme Gradient Boosting) decison-tree temelli ve gradient-boosting yöntemlerinden biridir. LightGBM'den farklı olarak level-wise yaklaşımı izlemektedir:
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/42123801/229359120-e3f1fb88-ad48-41be-8117-e1f730d17baf.png" width="800"/>
+  <img src="https://user-images.githubusercontent.com/42123801/229359120-e3f1fb88-ad48-41be-8117-e1f730d17baf.png" width="700"/>
 </p>
 
 
-#### 3.2.3. CatBoost
+#### 3.2.3. CatBoost - [Referans](https://catboost.ai/news/catboost-enables-fast-gradient-boosting-on-decision-trees-using-gpus)
 
 Catboost diğer Gradient Boosting algoritmalarından farklı olarak symmetric tree yöntemini izler:
 
@@ -126,9 +125,9 @@ Catboost diğer Gradient Boosting algoritmalarından farklı olarak symmetric tr
   <img src="https://user-images.githubusercontent.com/42123801/229360226-edcf5dd6-5cf8-4d30-99a7-3f54edd5fdd4.png" width="600"/>
 </p>
 
-Ayrıca kategorik öznitelikleri daha farklı ele alarak one-hot-encoding dışına çıkar, farklı kategorik değerleri birleştirir ve daha iyi performans gösterir [(Kaynak)](https://catboost.ai/news/catboost-enables-fast-gradient-boosting-on-decision-trees-using-gpus).
+Ayrıca kategorik öznitelikleri daha farklı ele alarak one-hot-encoding dışına çıkar, farklı kategorik değerleri birleştirir ve daha iyi performans gösterir.
 
-#### 3.2.4. Support Vector Classifier (SVC)
+#### 3.2.4. Support Vector Classifier (SVC) - [Referans](https://scikit-learn.org/stable/modules/svm.html#multi-class-classification)
 
 Support Vector Machines (SVMs) sınıflandırma, regresyon ve aykırı değerlerin tespiti için kullanılan bir dizi denetimli öğrenme yöntemidir. Vektör boyutu fazla olduğunda avantaj sağlayan bir yöntemdir.
 
@@ -138,9 +137,7 @@ Support Vector Machines (SVMs) sınıflandırma, regresyon ve aykırı değerler
 </p>
 
 
-
-
-Multi-class sınıflandırma için ise `one-versus-one` yöntemi izlenerek tahminler oluşturulmaktadır. [(Kaynak)](https://scikit-learn.org/stable/modules/svm.html#multi-class-classification)
+Multi-class sınıflandırma için ise `one-versus-one` yöntemi izlenerek tahminler oluşturulmaktadır.
 
 #### 3.2.5. Neural SoftMax Katmanı
 
