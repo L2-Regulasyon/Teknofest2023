@@ -100,17 +100,10 @@ Hem en iyi performansı gösterdiği, hem de diğer 4 çözüme karşı yek bir 
 - **Gradient Clipping:** 1.0
 - **MLM Pre-Training:** Kapalı
 
-## 2.3. Modeldeki Önyargı
-Geliştirme sürecinde bir sürü alternatif denedik ve bazılarının şaşırtıcı bir şekilde sonuçları iyileştirmediğini, hatta kötüleştirebildiğini gördük. En iyi modelimizin yanlış tahminlerini ve verinin yapısını beraber incelediğimizde verilen eğitim setiyle alakalı modelin performansını etkileyebilecek 4 potansiyel kritik sorun keşfettik:
-- **Cümle uzunlukları:** Yukarıdaki temel analiz çıktısında da bahsedildiği üzere `OTHER` sınıfına ait cümleler diğerlerine göre belirgin derecede daha uzun. Bu da modelin cümleler uzadıkça tahminini `OTHER` sınıfına kaydırmasına neden oluyor.
-- **Büyük harf dağılım dengesizliği:** Büyük harf içeren kelime kullanımının `OTHER` sınıfında neredeyse hiç yokken diğer sınıflarda `%30` civarında olduğunu görüyoruz. Böylelikle model yarattığımız işaretçiye gereğinden fazla anlam yükleyebiliyor. Masum bir kelimenin baş harfini büyütünde model ofansif sınıflar ile etiketlemeye meylediyor. `Uncased` yerine `Cased` model kullanılan herhangi bir senaryoda model bunu istemsizce özel işaretçiye gerek duymadan _kendisi yapıyor_.
-- **Cinsiyetçi Önyargı:** Modelde cinsiyetlere ait kelimeler kullanıldığında sınıflandırmalar cümle uzamadığı sürece ofansife kayıyor.
-- **Hitabet eksikliği:** `OTHER` sınıfına ait çoğu cümle ya üçüncü kişiye yönelik, ya da tanım-açıklama formatında yazılmış. Ofansif kategoriye girecek cümleler ise çoğunlukla ikili konuşmalardan alınan örnekler. Bu yüzden model genelgeçer ikili muhabbete ait jargon-kelime gördüğünde sınıflandırmasını belirgin bir şekilde ofansife kaydırıyor.
-
-## 2.4. Final Modeller
+## 2.3. Final Modeller
 ![](img/model_versions.png)
 
-Yukarıda da bahsettiğimiz model önyargılarının bazıları sonucu büyük ölçütte değiştiriyordu. Bu yüzden 3 farklı versiyon tasarlamaya karar verdik. Yukarıda belirtilen önişlemeleri yaptıktan sonra aldığımız sonuçlar ise aşağıdaki gibidir:
+[İlgili dökümanda](src/README.md) `Model-Data Unbiasing` bölümünde bahsettiğimiz model önyargılarının bazıları sonucu büyük ölçütte değiştiriyordu. Bu yüzden 3 farklı versiyon tasarlamaya karar verdik. Yukarıda belirtilen önişlemeleri yaptıktan sonra aldığımız sonuçlar ise aşağıdaki gibidir:
 
 |Model|F1-Macro|F1-OTHER|F1-INSULT|F1-RACIST|F1-SEXIST|F1-PROFANITY|Ortalama Fold Eğitim Süresi|
 |---|---|---|---|---|---|---|---|
