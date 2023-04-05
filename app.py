@@ -1,6 +1,5 @@
 # THIS SCRIPT IS PROVIDED BY THE ORGANIZATOR
 
-import time
 import re
 import pandas as pd
 import os
@@ -122,7 +121,6 @@ def get_file(file):
     # For Windows users, replace path seperator
     file_name = file.name.replace("\\", "/")
 
-    start_time = time.time()
     print("-"*30)
 
     df = pd.read_csv(file_name, sep="|")
@@ -130,8 +128,6 @@ def get_file(file):
 
     df = predict(df)
 
-    end_time = time.time()
-    print(f"Processing time: {np.round(end_time-start_time, 2)}s")
     print("-" * 30)
 
     df.to_csv(output_file, index=False, sep="|")
@@ -169,6 +165,10 @@ def demo_inference(selected_model: str,
 
     for pred_i, pred in enumerate(pred_classes):
         pred_classes[pred_i] = TARGET_INV_DICT[pred] if pred in [0, 1, 2, 3, 4] else pred
+
+    print("*"*30)
+    print("Ran inference on a custom text!")
+    print("*"*30)
 
     return dict(zip(list(TARGET_DICT.keys()), pred_probas[0].tolist()))
 
