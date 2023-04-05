@@ -10,6 +10,14 @@ from .constants import MODEL_CV_RESULT_PATH, TARGET_DICT, TARGET_INV_DICT
 
 
 def add_external_positive_data(x_series, y_series):
+    """
+    Adds external non-offensive corpus to the fiven original data
+
+    ---------
+    :param x_series: Original text data
+    :param y_series: Original labels
+    :return: Concatenated original and extra corpus with respective labels
+    """
     external_path = "../data/external/tweetset.csv"
     if not os.path.exists(external_path):
         os.system(
@@ -24,6 +32,7 @@ def add_external_positive_data(x_series, y_series):
     y_series = pd.concat([y_series, y_train_ext], ignore_index=True)
     return x_series, y_series
 
+
 def run_cv(model_obj,
            model_params: dict,
            input_df: pd.DataFrame,
@@ -34,7 +43,6 @@ def run_cv(model_obj,
            add_to_zoo: bool = False,
            is_nn: bool = False,
            prevent_bias: int = 0):
-    
     """
     Run the selected model, evaluate the results and save the experiment to the model zoo if selected.
     
@@ -48,6 +56,7 @@ def run_cv(model_obj,
     :param experiment_name: If the model is to be saved in the model zoo, this parameter must be a unique string: 'dbmdz/bert-base-turkish-128k-uncased | epochs: 3 | batch_size: 32 | max_len: 128', e.g. 
     :param add_to_zoo: Add to the model zoo for model tracking.
     :param is_nn: If the model comes from NN based approach, set true.
+    :param prevent_bias: Unbias routine processing level (0,1,2)
     :return: Prints classification results, save OOF results, add to the model zoo with experiment name if add_to_zoo is set to True.
     """
     print()

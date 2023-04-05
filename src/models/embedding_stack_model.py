@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer, util
-from lightgbm import LGBMClassifier
 from .bert_model import BertModel
 from .base_model import BaseModel
+
 
 class EmbeddingStackModel(BaseModel):
     def __init__(self,
@@ -20,7 +20,17 @@ class EmbeddingStackModel(BaseModel):
               y_train,
               x_val,
               y_val,
-              fold_id = "none"):
+              fold_id="none"):
+        """
+        Run a full training on given training corpus (and evaluate on the validation corpus if given).
+
+        ---------
+        :param x_train: train texts
+        :param y_train: train classes
+        :param x_val: validation texts
+        :param y_val: validation classes
+        :param fold_id: fold-id identifier for checkpointing
+        """
 
         if self.retrain_embed_model:
             save_path = "./checkpoints/embed_stack_backbone"
@@ -43,6 +53,14 @@ class EmbeddingStackModel(BaseModel):
 
     def predict(self,
                 x_test):
+        """
+        Get model predictions on given input
+
+        ---------
+        :param x_test: List of inference texts
+        :return: Predicted class ids and class-id-ordered prediction probabilities
+        """
+
         x_test = self.embedding_model.encode(x_test.reset_index(drop=True),
                                              convert_to_tensor=False,
                                              batch_size=32)

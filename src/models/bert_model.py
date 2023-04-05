@@ -24,13 +24,13 @@ def get_optimizer_grouped_parameters(model,
                                      layerwise_learning_rate_decay
                                      ):
     """
-    Setting optimizer group paramaters.
+    Applies LLRD on given BERT or RoBERTa backbone.
     ---------
-    param model: Backbone
-    param learning_rate: Learning rate
-    param weight_decay: Weight decay (L2 penalty)
-    param layerwise_learning_rate_decay: layer-wise learning rate decay: a method that applies higher learning rates for top layers and lower learning rates for bottom layers
-    return: Optimizer group parameters for training
+    :param model: BERT model object
+    :param learning_rate: Learning rate
+    :param weight_decay: Weight decay (L2 penalty)
+    :param layerwise_learning_rate_decay: layer-wise learning rate decay: a method that applies higher learning rates for top layers and lower learning rates for bottom layers
+    :return: Optimizer group parameters for training
     """   
     
     model_type = model.config.model_type
@@ -74,18 +74,17 @@ def get_llrd_optimizer_scheduler(model,
                                  layerwise_learning_rate_decay=0.95,
                                  num_warmup_steps=0,
                                  num_training_steps=10):
-    
     """
-    Setting optimizer and scheduler paramaters.
+    Setting optimizer and scheduler paramaters using LLRD and cosine-with-warmup.
     
     ---------
-    param model: Backbone
-    param learning_rate: Learning rate
-    param weight_decay: Weight decay (L2 penalty)
-    param layerwise_learning_rate_decay: layer-wise learning rate decay: a method that applies higher learning rates for top layers and lower learning rates for bottom layers
-    param num_warmup_steps: warmup steps
-    param num_training_steps: Epoch size
-    return: Optimizer and scheduler parameters for training
+    :param model: Backbone
+    :param learning_rate: Learning rate
+    :param weight_decay: Weight decay (L2 penalty)
+    :param layerwise_learning_rate_decay: layer-wise learning rate decay: a method that applies higher learning rates for top layers and lower learning rates for bottom layers
+    :param num_warmup_steps: warmup steps
+    :param num_training_steps: Epoch size
+    :return: Optimizer and scheduler parameters for training
     """
     grouped_optimizer_params = get_optimizer_grouped_parameters(
         model,
@@ -110,14 +109,14 @@ def ohem_loss(preds,
               weights,
               label_smoothing=0.05):
     """
-    OHEM (Online Hard Example Mining) loss for training.
+    OHEM (Online Hard Example Mining) loss for training. (with k=0.5)
     
     ---------
-    param preds: Predicted values.
-    param labels: Groundt truth labels.
-    param weights: A manual rescaling weight given to each class. 
-    param label_smoothing: A float in [0.0, 1.0]. Specifies the amount of smoothing when computing the loss, where 0.0 means no smoothing
-    return: Training loss.
+    :param preds: Predicted values.
+    :param labels: Groundt truth labels.
+    :param weights: A manual rescaling weight given to each class.
+    :param label_smoothing: A float in [0.0, 1.0]. Specifies the amount of smoothing when computing the loss, where 0.0 means no smoothing
+    :return: Training loss.
     """
     CE_LOSS_OBJ = torch.nn.CrossEntropyLoss(weight=torch.FloatTensor(weights).cuda(),
                                             reduction="none",
@@ -133,8 +132,8 @@ def set_seed(seed=int):
     Sets the seed for the entire environment so results are the same every time we run. This is for reproducibility.
     
     ---------
-    param seed: Seed number
-    return: Set seed for torch, numpy, random all over python methods. 
+    :param seed: Seed number
+    :return: Set seed for torch, numpy, random all over python methods.
     
     """
     np.random.seed(seed)
@@ -150,7 +149,7 @@ def set_seed(seed=int):
 
 class MLMDataset(Dataset):
     """
-    Create MLM dataset object
+    Dataset class for Masked Language Modeling objective
     """
 
     def __init__(self,
@@ -196,7 +195,7 @@ class StratifiedBatchSampler:
 
 class BertModel(BaseModel):
     """
-    Fine-tune the given model for multiclass classification.
+    A wrapper for managing training and evaluation tasks on BERT variants.
     """
     
     def __init__(self,
@@ -219,7 +218,7 @@ class BertModel(BaseModel):
                  ):
         
         """
-        Initiliaze model parameters for traning purpose.
+        Initiliaze the wrapper with model-related parameters.
         """
 
         super().__init__()
@@ -258,24 +257,23 @@ class BertModel(BaseModel):
     def save(self,
              path: str):
         """
-        Save fine-tuned model to the given path.
+        Save the fine-tuned model and its tokenizer to the given path.
         
         ---------
-        param path: Model output path
-        return: Save trained model
+        :param path: Model output path
+        :return: Save trained model
         """
         self.model.save_pretrained(path)
         self.tokenizer.save_pretrained(path)
 
     def train_mlm(self,
                   x_train):
-        
         """
         Run a MaskedLM pre-training on given training corpus.
         
         ---------
-        param x_train: train dataset
-        return: Save the trained model.
+        :param x_train: train dataset
+        :return: Save the trained model.
         """
         
         set_seed(42)
@@ -327,6 +325,17 @@ class BertModel(BaseModel):
               y_val=0,
               n_batches=1,
               fold_id="none"):
+        """
+        Run a full training on given training corpus (and evaluate on the validation corpus if given).
+
+        ---------
+        :param x_train: train texts
+        :param y_train: train classes
+        :param x_val: validation texts
+        :param y_val: validation classes
+        :param n_batches: number of batches for gradient accumulation
+        :param fold_id: fold-id identifier for checkpointing
+        """
 
         set_seed(42)
 
@@ -456,8 +465,9 @@ class BertModel(BaseModel):
         Get model predictions on given input
 
         ---------
-        param x_test: List of inference texts
-        return: Predicted class ids and class-id-ordered prediction probabilities
+        :param x_test: List of inference texts
+        :param progress: Whether show a progress-bar for inference process or not
+        :return: Predicted class ids and class-id-ordered prediction probabilities
         """
         test_texts = x_test.to_list()  # list of validation texts
         test_encodings = self.tokenizer(test_texts,
@@ -500,14 +510,13 @@ class BertModel(BaseModel):
     def evaluate(self,
                  x_val,
                  y_val):
-        
         """
         Evaluate the model w.r.t. given ground truth.
         
         ---------
-        param x_val: List of validation texts
-        param y_val: List of validation labels 
-        return: F1 macro and accuracy scores to evaluate the results.
+        :param x_val: List of validation texts
+        :param y_val: List of validation labels
+        :return: F1 macro and accuracy scores for the given validation ground truths
         """
         
         val_texts = x_val.to_list()  # list of validation texts

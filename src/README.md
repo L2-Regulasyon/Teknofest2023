@@ -67,11 +67,15 @@ Label Smoothing, loss fonksiyonu olarak, cross-entropy kullanırken, sinir ağı
 
 Model mimarilerinin embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
 
-### 1.10. Masked Language Modeling - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling)
+### 1.10. Gradient Accumulation - [Referans](https://huggingface.co/docs/accelerate/usage_guides/gradient_accumulation)
+
+Gradient accumulation, ilgili eğitim işlem biriminin normalde belleğine sığdıramayacağınız büyük boyutlarda eğitim yapabileceğiniz bir tekniktir. Birkaç toplu batch boyunca gradientleri biriktirdikten sonra yalnızca optimizer'ı çalıştırarak birden fazla batch'i tek seferde işleyerek sanal bir `daha büyük batch-size` etkisi yaratır.
+
+### 1.11. Masked Language Modeling - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling)
 
 Fine-tune ettiğimiz modelin kullanacağı kelimelerin anlam temsillerini iyileştirmek ve veri bağlamını daha iyi anlatabilmek adına; metindeki bazı kelimeleri gizleyip gizlenmiş kısmı modele tahmin ettirdiğimiz bir eğitim tekniği kullanmayı denedik.  Modellerin alan spesifik bir bağlamı öğrenmeleri için, kelimelerin anlamlarının ve kelimelerin bir araya gelmesinden oluşan anlamların öğretilebilmesi gerekmektedir. Bu eğitimler, bir metnin içerisindeki bazı kelimeler gizlenip/değiştirilip, bağlama uyan doğru kelimeyi bulabilme ödülü ile eğitilir. Bu yaklaşım dil modeli eğitilirken kullanıldığı gibi, fine-tune ederken de kullanılabilir. Böylece mevcut modele yeni veri setindeki bağlama uyum sağlatarak modelin bir ısınma (pre-training) sürecinden geçmiş olması sağlanır.
 
-### 1.11. Model-Data Unbiasing
+### 1.12. Model-Data Unbiasing
 
 Yarışmada kullandığımız veriyi inceleyerek, bu verinin gerçek dünya verisinde _(mevcut eğitim setinden daha büyük ve çeşitli örneklemde)_ hangi zorluklarla karşılaşabilceğini tespit ettik. Belirlediğimiz aksiyonlarla da final çözümümüzde modelimizin yarışma verisine karşı olan önyargılarına karşı önlemler almaya çalıştık.
 
@@ -82,7 +86,7 @@ Tespit ettiğimiz model önyargıları;
 - **Cinsiyetçi Önyargı:** Modelde cinsiyetlere ait kelimeler kullanıldığında sınıflandırmalar cümle uzamadığı sürece ofansife kayıyor.
 - **Hitabet eksikliği:** `OTHER` sınıfına ait çoğu cümle ya üçüncü kişiye yönelik, ya da tanım-açıklama formatında yazılmış. Ofansif kategoriye girecek cümleler ise çoğunlukla ikili konuşmalardan alınan örnekler. Bu yüzden model genelgeçer ikili muhabbete ait jargon-kelime gördüğünde sınıflandırmasını belirgin bir şekilde ofansife kaydırıyor.
 
-### 1.12. Voting Ensemble - [Referans](https://machinelearningmastery.com/voting-ensembles-with-python/)
+### 1.13. Voting Ensemble - [Referans](https://machinelearningmastery.com/voting-ensembles-with-python/)
 
 Makine öğrenmesiyle çözülen problemlerde çözümün kararlılığını arttırmak adına birden fazla modelin tahminlerinin birleştirilerek kullanılması tercih edilebilmektedir. Yarışma kapsamında ayrı cross-validation fodları için eğittiğimiz modellerinin sınıflara ait olasılık çıktılarını ortalama alarak birleştirdiğimiz yeni bir model tipi oluşturduk. Fakat bu modelin kapladığı yer `(1 modelin kaplayacağı yer) * (CV fold sayısı)` kadar olacağı için elde edilecek performans gelişmesinin beraberinde getireceği yer kompleksitesine değmeyeceğini düşündük. Fakat ilgili model türünün oluşturulma ve çalıştırılma kodu hala repository içerisinde commented-out halde bulunmaktadır.
 

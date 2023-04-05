@@ -1,6 +1,6 @@
 class BaseModel:
     """
-    Base model class for different backbones.
+    Base model class for different model types.
     """
     def __int__(self):
         pass

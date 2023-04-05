@@ -67,7 +67,7 @@ class TextNormalization:
 
 # Lowercasing with special token
 def special_lowercase(x):
-    """"
+    """
     Add special token if text contains upper chars.
     
     ---------
@@ -104,13 +104,12 @@ def feature_wordcount(x):
 
 def preprocess_text(textcol,
                     prevent_bias=0):
-    
     """
     Remove punctuations, prevent the bias by bias level
     
     ---------
     param textcol: Text
-    param prevent_bias: bias level. 0 means fully-unbiased, > 0 means casing-unbiased
+    param prevent_bias: bias level. 2 means fully-unbiased, 1 means casing-unbiased, 0 means none bias prevention mechanism is being executed
     return: Adjusted text
     """
     # textcol.values[:] = [" ".join(elm.strip().split()) for elm in tqdm(textcol.values)]

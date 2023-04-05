@@ -43,14 +43,13 @@ fully_unbiased_model.load()
 
 
 # Cased-Sentence ratio
-def get_uppercase_sentence_ratio(input_df:pd.DataFrame):
-    
+def get_uppercase_sentence_ratio(input_df: pd.DataFrame):
     """
     Get uppercase ratio. 
     
     ---------
-    param input_df: input dataframe
-    return: Uppercase sentence ratio
+    :param input_df: input dataframe
+    :return: Uppercase sentence ratio
     """
     
     def find_uppercase(text):
@@ -67,8 +66,7 @@ def get_uppercase_sentence_ratio(input_df:pd.DataFrame):
 
 
 # Authorization routine
-def auth(username,
-         password):
+def auth(username: str, password: str):
     if username == "L2_Regulasyon" and password == os.environ["space_auth_pass"]:
         return True
     else:
@@ -76,13 +74,12 @@ def auth(username,
 
 
 def predict(df: pd.DataFrame):
-    
     """
-    Model inference for gradio app. 
+    Model inference for Gradio app.
     
     ---------
-    param input_df: input dataframe
-    return: Dataframe with wanted columns.   
+    :param df: input dataframe
+    :return: Dataframe with wanted columns.
     """
 
     df["is_offensive"] = 1
@@ -102,7 +99,6 @@ def predict(df: pd.DataFrame):
                                           prevent_bias=1)
         pred_classes, _ = case_unbiased_model.predict(df["proc_text"])
 
-
     # Class ID > Text
     for pred_i, pred in enumerate(pred_classes):
         pred_classes[pred_i] = TARGET_INV_DICT[pred] if pred in [0, 1, 2, 3, 4] else pred
@@ -114,9 +110,16 @@ def predict(df: pd.DataFrame):
 
 
 def get_file(file):
+    """
+    Reads, processes and dumps the results.
+
+    ---------
+    :param file: input dataframe
+    :return: processed output .csv file
+    """
     output_file = "output_L2_Regulasyon.csv"
 
-    # For windows users, replace path seperator
+    # For Windows users, replace path seperator
     file_name = file.name.replace("\\", "/")
 
     start_time = time.time()
@@ -136,22 +139,31 @@ def get_file(file):
     return (output_file)
 
 
-def demo_inference(selected_model,
-                   input_text):
-    input = pd.Series([input_text])
+def demo_inference(selected_model: str,
+                   input_text: str):
+    """
+    Reads, processes and dumps the results.
+
+    ---------
+    :param selected_model: Selected model for demo-inference
+    :param input_text: to-be-processed text
+    :return: Class probability predictions for the given text
+    """
+
+    input_series = pd.Series([input_text])
 
     if selected_model == "Yarışma Modeli":
-        proc_input = preprocess_text(input,
+        proc_input = preprocess_text(input_series,
                                      prevent_bias=0)
         pred_classes, pred_probas = model.predict(proc_input)
 
     elif selected_model == "Case-Unbiased Model":
-        proc_input = preprocess_text(input,
+        proc_input = preprocess_text(input_series,
                                      prevent_bias=1)
         pred_classes, pred_probas = case_unbiased_model.predict(proc_input)
 
     elif selected_model == "Fully-Unbiased Model (Ürün Modu)":
-        proc_input = preprocess_text(input,
+        proc_input = preprocess_text(input_series,
                                      prevent_bias=2)
         pred_classes, pred_probas = fully_unbiased_model.predict(proc_input)
 
@@ -162,7 +174,6 @@ def demo_inference(selected_model,
 
 
 model_selector = gr.Radio(["Yarışma Modeli", "Case-Unbiased Model", "Fully-Unbiased Model (Ürün Modu)"])
-
 
 # Launch the interface with user password
 competition_interface = gr.Interface(get_file, "file", gr.File())

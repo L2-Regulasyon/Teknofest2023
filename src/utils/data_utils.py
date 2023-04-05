@@ -28,7 +28,6 @@ def read_model_zoo():
 
 
 def write_model_zoo(zoo_dict):
-    
     """
     Dump new experiment results to the model zoo.
     """

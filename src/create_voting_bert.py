@@ -9,8 +9,8 @@ def main(args):
     Main function to run VotingBertModel
     
     ---------
-    param args: Training arguments
-    return: Create ensemble model save as a bin file for inference.
+    :param args: Training arguments
+    :return: Create ensemble model and save it as a torch binary file for later use in inference.
     """
     vem = VotingBertModel(checkpoint_list=args.checkpoint_paths)
     vem.save(args.output_path)

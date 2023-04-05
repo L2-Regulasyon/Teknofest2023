@@ -10,6 +10,7 @@ from lightgbm import LGBMClassifier
 from cuml.svm import SVC
 from catboost import CatBoostClassifier
 
+
 def main(args):
     df = read_training_data()
 
