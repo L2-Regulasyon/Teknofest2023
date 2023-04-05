@@ -92,6 +92,7 @@ Hem en iyi performansı gösterdiği, hem de diğer 4 çözüme karşı yek bir 
 - **Class-Weighting**: Açık (^0.3)
 - **Early Stopping**: Kapalı
 - **Stratified Batch Sampling**: Açık
+- **Gradient Accumulation**: Kapalı
 - **LR Scheduler:** Cosine-with-Warmup
 - **Warmup Ratio:** 0.1
 - **Weight Decay:** 0.01
