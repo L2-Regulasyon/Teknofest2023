@@ -119,11 +119,11 @@ def preprocess_text(textcol,
     # Removing punctuations
     textcol = textcol.apply(lambda x: x.translate(remove_punc))
 
-    # Casing-Unbiased Flow
+    # Casing-Unbiased and Fully-Unbiased Flow
     if prevent_bias > 0:
         textcol = textcol.str.lower()
 
-    # Fully-Unbiased Flow
+    # Vanilla Flow
     elif prevent_bias == 0:
         textcol = textcol.apply(special_lowercase)
 

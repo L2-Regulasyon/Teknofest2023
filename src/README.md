@@ -9,7 +9,7 @@
 
 ## 1 - Eğitim Şeması / Parametreleri
 
-### 1.1. StratifiedBatchSampler - [Referans](https://discuss.pytorch.org/t/how-to-enable-the-dataloader-to-sample-from-each-class-with-equal-probability/911/7)
+### 1.1. StratifiedBatchSampler - [Referans](https://discuss.pytorch.org/t/how-to-enable-the-dataloader-to-sample-from-each-class-with-equal-probability/911/7) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L171)
 
 Her iterasyon sırasında kullanılacak `batch_size` parametresi ve her örnekleme düşen veri dağılımı, eğitim performansı gelişimini hızlandırma veyahut stabilleştirmesine etki eder. Eğer düşük örneklem sayısı kullanılırsa, batch’lere düşen veri tek bir sınıftan oluşabilir, ya da tüm sınıfları içercek şekilde örneklem oluşturmaz. Bu da aşağıdaki sonuçlara yol açabilir.
 
@@ -32,11 +32,11 @@ Bu teknik eğitim-validasyon skorumuz arasındaki açıklığı azaltmada etkili
 
 Eğitim sırasında test kümesine göre başarıyı takip ederek belirli bir iterasyon boyunca başarı iyileşmiyorsa overfittingi engellemek için kullanılan ‘early stopping’ tekniğini kullanmama kararı aldık. Bu metot kullanıldığında raporlayacağı kümedeki performans azalmaya başladığında süreci durdurduğu için, iyimser bir raporlama yapılmasına yol açacaktır. Eğitim sürecimizi gerçek hayat senaryolarındaki gibi _test verisini bilmeyeceğimizi_ varsayarak tasarladığımız için cross-validation süreci boyunca da test verisinden alınan herhangi bir bilginin eğitim sürecini etkilemesine izin vermedik.
 
-### 1.3. Online Hard Example Mining (OHEM) - [Referans](https://arxiv.org/abs/1604.03540v1)
+### 1.3. Online Hard Example Mining (OHEM) - [Referans](https://arxiv.org/abs/1604.03540v1) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L107)
 
 Modeli multi-class problem için eğitebilmek adına Cross-Entropy loss fonksiyonunu `Online Hard Example Mining` yaklaşımı ile kullandık. Bu yaklaşım, kolay örneklerin loss'u domine edip zor örneklerinin öneminin azaldığı durumları engellemek için kullanılıyor. Model'in örneklerden aldığı loss'un sadece en yüksek `%k` lık bir dilimi hesaba katılıyor. Böylelikle model ne kadar iyileşirse iyileşsin hep örneklerin en zor `%k` lık diliminden loss feedback alıyor.
 
-### 1.4. Sınıf Ağırlıklandırma
+### 1.4. Sınıf Ağırlıklandırma - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L342)
 
 Her sınıfın eğitim örneği eşit sayıda olmadığı için az temsil edilen sınıfların da öğrenimini iyileştirmek adına sınıf ağırlıkları _(az temsil edilen sınıf, daha önemli olacak şekilde)_ belirledik.
 
@@ -46,36 +46,36 @@ cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) 
 cls_weights /= min(cls_weights)
 ```
 
-### 1.5. Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules)
+### 1.5. Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L71)
 
 Belirli bir ısınma süreci boyunca hedef learning rate’a kadar küçük oranlarla artan, belirlenen learning rate’e ulaştığında eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık. Bu teknik özellikle fine-tuning eğitimlerinde halihazırdaki weight'leri daha ilk iterasyonlarda aşırı değiştirip modelin bütün embedding yapısını bozmamak adına önemlidir.
 
-### 1.6. Gradient Clipping - [Referans](https://neptune.ai/blog/understanding-gradient-clipping-and-how-it-can-fix-exploding-gradients-problem#:~:text=What%20is%20gradient%20clipping%3F,gradients%20to%20update%20the%20weights.)
+### 1.6. Gradient Clipping - [Referans](https://neptune.ai/blog/understanding-gradient-clipping-and-how-it-can-fix-exploding-gradients-problem#:~:text=What%20is%20gradient%20clipping%3F,gradients%20to%20update%20the%20weights.) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L437)
 
 
 Eğitilen parametrelerin büyüklüklerini belirli bir değeri geçmeyecek şekilde sınırlayan Gradient Clipping tekniğini kullandık. Bu teknik, tahminleri belirli parametrelerin domine etmesindense gradyanların genele yayılıp parametreler üstünde regülarizasyon etkisi yaratılmasını sağlıyor.
 
-### 1.7. Weight Decay - [Referans](https://towardsdatascience.com/this-thing-called-weight-decay-a7cd4bcfccab)
+### 1.7. Weight Decay - [Referans](https://towardsdatascience.com/this-thing-called-weight-decay-a7cd4bcfccab) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L59)
 
 Weight Decay, loss fonksiyonuna overfit’i engellemek için parametre büyüklüğüne göre penaltı ekler. Overfitting’i azaltmak için bu metodu da parametrik olarak mevcut akışımıza ekledik. Bu penaltıya göre, sinir ağı eğitilirken, mevcut iterasyonda büyük parametreler kullanılıyorsa, daha büyük loss elde edilirken, örneğin L2 norm uygulandığı durumda elde edilen küçük parametreler ile daha küçük loss elde edilir. Böylelikle, sinir ağının kararına parametrelerin büyüklük olarak önemli bir alt kümesinden ziyade, parametrelerin geneli karar verdiğinden, modelin farklı veri desenlerine genelleşmesi daha olası hale gelmektedir.
 
-### 1.8. Label Smoothing - [Referans](https://towardsdatascience.com/what-is-label-smoothing-108debd7ef06)
+### 1.8. Label Smoothing - [Referans](https://towardsdatascience.com/what-is-label-smoothing-108debd7ef06) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L123)
 
 Label Smoothing, loss fonksiyonu olarak, cross-entropy kullanırken, sinir ağı mimarisinin eğitim verisine overfit olmasını engelleyen diğer bir regülarizasyon tekniği kullandık.. Bu teknik, modelin doğru sınıf üzerindeki kararlılığını azaltarak, görülmeyen verinin eğitim verisine benzeme varsayımı konusunda daha az katı modeller eğitmeye yaramaktadır.
 
-### 1.9. LLRD Decay - [Referans](https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e)
+### 1.9. LLRD Decay - [Referans](https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L55)
 
 Model mimarilerinin embedding ve encoder katmanlarına regülarizasyonu arttıracak parametreler ekleyerek, overfit’i azaltmak istedik.
 
-### 1.10. Gradient Accumulation - [Referans](https://huggingface.co/docs/accelerate/usage_guides/gradient_accumulation)
+### 1.10. Gradient Accumulation - [Referans](https://huggingface.co/docs/accelerate/usage_guides/gradient_accumulation) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L435)
 
 Gradient accumulation, ilgili eğitim işlem biriminin normalde belleğine sığdıramayacağınız büyük boyutlarda eğitim yapabileceğiniz bir tekniktir. Birkaç toplu batch boyunca gradientleri biriktirdikten sonra yalnızca optimizer'ı çalıştırarak birden fazla batch'i tek seferde işleyerek sanal bir `daha büyük batch-size` etkisi yaratır.
 
-### 1.11. Masked Language Modeling - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling)
+### 1.11. Masked Language Modeling - [Referans](https://huggingface.co/docs/transformers/main/tasks/masked_language_modeling) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L269)
 
 Fine-tune ettiğimiz modelin kullanacağı kelimelerin anlam temsillerini iyileştirmek ve veri bağlamını daha iyi anlatabilmek adına; metindeki bazı kelimeleri gizleyip gizlenmiş kısmı modele tahmin ettirdiğimiz bir eğitim tekniği kullanmayı denedik.  Modellerin alan spesifik bir bağlamı öğrenmeleri için, kelimelerin anlamlarının ve kelimelerin bir araya gelmesinden oluşan anlamların öğretilebilmesi gerekmektedir. Bu eğitimler, bir metnin içerisindeki bazı kelimeler gizlenip/değiştirilip, bağlama uyan doğru kelimeyi bulabilme ödülü ile eğitilir. Bu yaklaşım dil modeli eğitilirken kullanıldığı gibi, fine-tune ederken de kullanılabilir. Böylece mevcut modele yeni veri setindeki bağlama uyum sağlatarak modelin bir ısınma (pre-training) sürecinden geçmiş olması sağlanır.
 
-### 1.12. Model-Data Unbiasing
+### 1.12. Model-Data Unbiasing - [Kullanım 1](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/utils/preprocess_utils.py#L122) - [Kullanım 2](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/utils/pipeline_utils.py#L91) - [Kullanım 3](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/bert_model.py#L363)
 
 Yarışmada kullandığımız veriyi inceleyerek, bu verinin gerçek dünya verisinde _(mevcut eğitim setinden daha büyük ve çeşitli örneklemde)_ hangi zorluklarla karşılaşabilceğini tespit ettik. Belirlediğimiz aksiyonlarla da final çözümümüzde modelimizin yarışma verisine karşı olan önyargılarına karşı önlemler almaya çalıştık.
 
@@ -86,24 +86,24 @@ Tespit ettiğimiz model önyargıları;
 - **Cinsiyetçi Önyargı:** Modelde cinsiyetlere ait kelimeler kullanıldığında sınıflandırmalar cümle uzamadığı sürece ofansife kayıyor.
 - **Hitabet eksikliği:** `OTHER` sınıfına ait çoğu cümle ya üçüncü kişiye yönelik, ya da tanım-açıklama formatında yazılmış. Ofansif kategoriye girecek cümleler ise çoğunlukla ikili konuşmalardan alınan örnekler. Bu yüzden model genelgeçer ikili muhabbete ait jargon-kelime gördüğünde sınıflandırmasını belirgin bir şekilde ofansife kaydırıyor.
 
-### 1.13. Voting Ensemble - [Referans](https://machinelearningmastery.com/voting-ensembles-with-python/)
+### 1.13. Voting Ensemble - [Referans](https://machinelearningmastery.com/voting-ensembles-with-python/) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/models/voting_bert_model.py)
 
 Makine öğrenmesiyle çözülen problemlerde çözümün kararlılığını arttırmak adına birden fazla modelin tahminlerinin birleştirilerek kullanılması tercih edilebilmektedir. Yarışma kapsamında ayrı cross-validation fodları için eğittiğimiz modellerinin sınıflara ait olasılık çıktılarını ortalama alarak birleştirdiğimiz yeni bir model tipi oluşturduk. Fakat bu modelin kapladığı yer `(1 modelin kaplayacağı yer) * (CV fold sayısı)` kadar olacağı için elde edilecek performans gelişmesinin beraberinde getireceği yer kompleksitesine değmeyeceğini düşündük. Fakat ilgili model türünün oluşturulma ve çalıştırılma kodu hala repository içerisinde commented-out halde bulunmaktadır.
 
 ## 2. Model Validasyonu
 
-### 2.1. Public - Private Folds
+### 2.1. Public & Private Folds - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/generate_data.py#L52)
 
 Projede denenen model mimarilerinin başarı performansının, aynı validasyon yöntemi ve test verisi ile raporlanması için örneklere fold atama süreci [generate_data.py](generate_data.py) adlı scriptte gerçekleştirildi.
 
 Organizatör tarafından verilen veriye iki farklı seed ile, iki farklı fold tanımı yapıldı. Bu foldlara `public` ve `private` isimleri verildi. Geliştirmeler ağırlık olarak `public` fold ile yapılırken, seyrek olarak da `private` fold ile `public` fold arasındaki korelasyona bakıldı. Bunun amacı, public fold'da düzenli olarak iyileşme görürken private’de aynı etkide gelişme görülmesini beklemekti. Aksi durum; skor gelişimi yapan geliştirmelerin farklı seed’lere genelleşemediği, yani mevcut CV’ye overfit olabilme riski olduğunu gösterecekti.
 
-### 2.2. Out-of-Fold (OOF) Evaluation - [Referans](https://machinelearningmastery.com/out-of-fold-predictions-in-machine-learning/#:%7E:text=An%20out%2Dof%2Dfold%20prediction,example%20in%20the%20training%20dataset.)
+### 2.2. Out-of-Fold (OOF) Evaluation - [Referans](https://machinelearningmastery.com/out-of-fold-predictions-in-machine-learning/#:%7E:text=An%20out%2Dof%2Dfold%20prediction,example%20in%20the%20training%20dataset.) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/utils/pipeline_utils.py#L105)
 
 
 Eğitilen modelin ne kadar başarılı olduğunu Out-of-Fold tekniğiniyle skorlayarak değerlendirdik. Bu teknik, veriyi bir cross-validation şemasına göre böldükten sonra _(örneğin 5 Fold StratifiedKFold)_ her foldun eğitim kümesinde eğitim yapıp test kümesini skorladıktan sonra, skorlanan test kümelerini birleştirir. Böylece, eğitim kümesindeki her örneğin test setindeki performansına erişilebilir ve bütün veriye ait tek bir genelleşebilme performansı metriği üretilebilir.
 
-## 3. Model Başarı Takibi (Model Zoo)
+## 3. Model Başarı Takibi (Model Zoo) - [Kullanım](https://github.com/L2-Regulasyon/Teknofest2023/blob/main/src/utils/pipeline_utils.py#L125)
 
 Model geliştirme süreci boyunca yapılan hiperparametre ve model mimarisi seçimlerinden kaynaklanan performans değişimlerini takip etmek ve en iyilerini seçmek amacıyla bir deney takip modülü geliştirdik. `src` klasöründeki eğitim kodlarına `–-add-zoo` parametresi eklenerek deneylerin başarı performansları kayıt altına alınabilir.
 	
