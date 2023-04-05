@@ -73,16 +73,18 @@ Fine-tune ettiğimiz modelin kullanacağı kelimelerin anlam temsillerini iyile�
 
 ### 1.11. Model-Data Unbiasing
 
-Yarışmada kullandığımız veriyi inceleyerek, bu verinin gerçek dünya verisinde(mevcut eğitim setinden daha büyük ve çeşitli örneklemde) hangi zorluklarla karşılaşabilceğini tespit ettik. Belirlediğimiz aksiyonlarla da, yarışma verisine özel biasları engellemeye çalıştık.
+Yarışmada kullandığımız veriyi inceleyerek, bu verinin gerçek dünya verisinde _(mevcut eğitim setinden daha büyük ve çeşitli örneklemde)_ hangi zorluklarla karşılaşabilceğini tespit ettik. Belirlediğimiz aksiyonlarla da final çözümümüzde modelimizin yarışma verisine karşı olan önyargılarına karşı önlemler almaya çalıştık.
 
-Tespit ettiğimiz bias’lar;
+Tespit ettiğimiz model önyargıları;
 
-- OTHER sınıfının, cümle ve kelime sayısı, diğer sınıflardan daha büyüktü. Bu durum, metin belirli bir kelime sayısını geçince, OTHER sınıfına karar verilebilme ihtimalini arttıran bir durum. Gerçek dünya verisinde, diğer sınıfların kelime sayısı büyüklüğünün de eğitim setindeki OTHER ile aynı seviyelerde olma ihtimaline karşı, max_len’i 64’e eşitleyerek bu durumun karara etki etmemesini sağladık.
+- **Cümle uzunlukları:** Yukarıdaki temel analiz çıktısında da bahsedildiği üzere `OTHER` sınıfına ait cümleler diğerlerine göre belirgin derecede daha uzun. Bu da modelin cümleler uzadıkça tahminini `OTHER` sınıfına kaydırmasına neden oluyor.
+- **Büyük harf dağılım dengesizliği:** Büyük harf içeren kelime kullanımının `OTHER` sınıfında neredeyse hiç yokken diğer sınıflarda `%30` civarında olduğunu görüyoruz. Böylelikle model yarattığımız işaretçiye gereğinden fazla anlam yükleyebiliyor. Masum bir kelimenin baş harfini büyütünde model ofansif sınıflar ile etiketlemeye meylediyor. `Uncased` yerine `Cased` model kullanılan herhangi bir senaryoda model bunu istemsizce özel işaretçiye gerek duymadan _kendisi yapıyor_.
+- **Cinsiyetçi Önyargı:** Modelde cinsiyetlere ait kelimeler kullanıldığında sınıflandırmalar cümle uzamadığı sürece ofansife kayıyor.
+- **Hitabet eksikliği:** `OTHER` sınıfına ait çoğu cümle ya üçüncü kişiye yönelik, ya da tanım-açıklama formatında yazılmış. Ofansif kategoriye girecek cümleler ise çoğunlukla ikili konuşmalardan alınan örnekler. Bu yüzden model genelgeçer ikili muhabbete ait jargon-kelime gördüğünde sınıflandırmasını belirgin bir şekilde ofansife kaydırıyor.
 
-- Eğitim verisinde, kadın / erkek kelimeleri SEXIST sınıfı için, milliyet ifade eden kelimelerin, OTHER sınıfında temsilleri olmadığı için, bu kelimeler her görüldüğünde SEXIST, RACIST olarak etiketleniyordu. Bu durumu engellemek için, dış veri toplayarak eğitim setini büyüttük.
+### 1.12. Voting Ensemble
 
-- Eğitim setinde, büyük/küçük harf kullanım oranına göre, sınıfların içerdiği leak mevcuttu. Örneğin, OTHER sınıfı metne neredeyse tamamen küçük harfle başlamaktaydı. Modeli büyük/küçük harf duyarlı seçseydik, bu bilgiyi öğrenerek, gerçek hayatta metni büyük harfle başlayanlara OTHER olarak karar verme ihtimali az olacaktı. Bu yüzden büyük/küçük harfli modeller(cased) kullanmadık.
-
+Lorem Ipsum
 
 ## 2. Model Validasyonu
 
