@@ -460,7 +460,7 @@ class BertModel(BaseModel):
 
     def predict(self,
                 x_test,
-                progress=False):
+                progress=True):
         """
         Get model predictions on given input
 
