@@ -46,7 +46,7 @@ cls_weights = list(dict(sorted(dict(1 / ((y_train.value_counts(normalize=True)) 
 cls_weights /= min(cls_weights)
 ```
 
-### 1.5 Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules)
+### 1.5. Cosine Scheduler + Warm Up - [Referans](https://huggingface.co/docs/transformers/main_classes/optimizer_schedules)
 
 Belirli bir ısınma süreci boyunca hedef learning rate’a kadar küçük oranlarla artan, belirlenen learning rate’e ulaştığında eğitim aşaması uzadıkça learning rate’i düşürecek Cosine Scheduler tekniğini kullandık. Bu teknik özellikle fine-tuning eğitimlerinde halihazırdaki weight'leri daha ilk iterasyonlarda aşırı değiştirip modelin bütün embedding yapısını bozmamak adına önemlidir.
 
@@ -82,9 +82,9 @@ Tespit ettiğimiz model önyargıları;
 - **Cinsiyetçi Önyargı:** Modelde cinsiyetlere ait kelimeler kullanıldığında sınıflandırmalar cümle uzamadığı sürece ofansife kayıyor.
 - **Hitabet eksikliği:** `OTHER` sınıfına ait çoğu cümle ya üçüncü kişiye yönelik, ya da tanım-açıklama formatında yazılmış. Ofansif kategoriye girecek cümleler ise çoğunlukla ikili konuşmalardan alınan örnekler. Bu yüzden model genelgeçer ikili muhabbete ait jargon-kelime gördüğünde sınıflandırmasını belirgin bir şekilde ofansife kaydırıyor.
 
-### 1.12. Voting Ensemble
+### 1.12. Voting Ensemble - [Referans](https://machinelearningmastery.com/voting-ensembles-with-python/)
 
-Lorem Ipsum
+Makine öğrenmesiyle çözülen problemlerde çözümün kararlılığını arttırmak adına birden fazla modelin tahminlerinin birleştirilerek kullanılması tercih edilebilmektedir. Yarışma kapsamında ayrı cross-validation fodları için eğittiğimiz modellerinin sınıflara ait olasılık çıktılarını ortalama alarak birleştirdiğimiz yeni bir model tipi oluşturduk. Fakat bu modelin kapladığı yer `(1 modelin kaplayacağı yer) * (CV fold sayısı)` kadar olacağı için elde edilecek performans gelişmesinin beraberinde getireceği yer kompleksitesine değmeyeceğini düşündük. Fakat ilgili model türünün oluşturulma ve çalıştırılma kodu hala repository içerisinde commented-out halde bulunmaktadır.
 
 ## 2. Model Validasyonu
 

@@ -109,7 +109,7 @@ LightGBM leaf-wise bölünme yöntemini kullanmaktadır:
 
 Leaf-wise yaklaşım veriseti küçük olduğunda overfit riski doğurmaktadır ancak doğru parametre seti ile bu tür riskler ortadan kaldırılabilir.
 
-#### 3.2.2. XGBoost 
+#### 3.2.2. XGBoost  - [Referans](https://xgboost.readthedocs.io/en/stable/)
 XGBoost'da (Extreme Gradient Boosting) decison-tree temelli ve gradient-boosting yöntemlerinden biridir. LightGBM'den farklı olarak level-wise yaklaşımı izlemektedir:
 
 <p align="center">
@@ -139,7 +139,7 @@ Support Vector Machines (SVMs) sınıflandırma, regresyon ve aykırı değerler
 
 Multi-class sınıflandırma için ise `one-versus-one` yöntemi izlenerek tahminler oluşturulmaktadır.
 
-#### 3.2.5. Neural SoftMax Katmanı
+#### 3.2.5. Neural SoftMax Katmanı - [Referans](https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html)
 
 Fine-tune ettiğimiz dil modellerinin son katmanına softmax yerleştirerek her bir class için olasılık dönmesini sağladık.
 

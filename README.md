@@ -35,7 +35,8 @@ Projenin ana klasörüne gidin ve aşağıdaki komutu çalıştırın.
 docker build -f Dockerfile -t l2reg .
 ```
 
-**NOT:** Buradan itibaren olan adımlarda `$PWD` değişkeninin düzgün çalışabilmesi adına lütfen klasör yollarınızda boşluk karakteri veya kaçış karakteri barındırmamaya özen gösterin.
+**NOT:** Buradan itibaren olan adımlarda `$PWD` değişkeninin düzgün çalışabilmesi adına lütfen klasör yollarınızda boşluk veya kaçış karakteri barındırmamaya özen gösterin.
+
 ### 4. Server'ın çalıştırılması
 Projenin ana klasörüne gidin ve aşağıdaki komutu çalıştırın.
 ```
@@ -47,20 +48,7 @@ docker run -v $PWD:/tmp/working \
 python app.py
 ```
 
-### 5. Eğitimlerin Tekrarlanması (Opsiyonel)
-Bütün model setini tekrar eğitmek için aşağıdaki kodu çalıştırabilirsiniz.
-```
-docker run -v $PWD:/tmp/working \
--v ${HOME}/.cache:/container_cache \
--w=/tmp/working \
--e "XDG_CACHE_HOME=/container_cache" \
---gpus all --rm -it l2reg \
-bash create_model_zoo.sh
-```
-Eğitim parametrelerini değiştirerek daha özelleştirilmiş eğitimler koşmak istiyorsanız [bu dökümanı](src/README.md) inceleyebilirsiniz.
-
-
-### 6. Analizlerin Tekrarlanması (Opsiyonel)
+### 5. Analizlerin Tekrarlanması (Opsiyonel)
 Jupyter sunucusunu aşağıdaki kod ile başlatarak `analysis` altındaki notebook dosyalarını yeniden çalıştırabilirsiniz.
 ```
 docker run -v $PWD:/tmp/working \
@@ -72,3 +60,15 @@ docker run -v $PWD:/tmp/working \
 jupyter notebook --no-browser --ip="0.0.0.0" \
 --notebook-dir=/tmp/working --allow-root
 ```
+
+### 6. Eğitimlerin Tekrarlanması (Opsiyonel)
+Bütün model setini tekrar eğitmek için aşağıdaki kodu çalıştırabilirsiniz.
+```
+docker run -v $PWD:/tmp/working \
+-v ${HOME}/.cache:/container_cache \
+-w=/tmp/working \
+-e "XDG_CACHE_HOME=/container_cache" \
+--gpus all --rm -it l2reg \
+bash create_model_zoo.sh
+```
+Eğitim parametrelerini değiştirerek daha özelleştirilmiş eğitimler koşmak istiyorsanız [bu dökümanı](src/README.md) inceleyebilirsiniz.

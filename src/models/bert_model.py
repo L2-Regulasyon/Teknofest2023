@@ -108,9 +108,7 @@ def get_llrd_optimizer_scheduler(model,
 def ohem_loss(preds,
               labels,
               weights,
-              label_smoothing=0.05,
-              epochnum=0):
-    #TODO: epochnum?
+              label_smoothing=0.05):
     """
     OHEM (Online Hard Example Mining) loss for training.
     
@@ -273,7 +271,7 @@ class BertModel(BaseModel):
                   x_train):
         
         """
-        Train MaskedLM model.
+        Run a MaskedLM pre-training on given training corpus.
         
         ---------
         param x_train: train dataset
@@ -420,8 +418,7 @@ class BertModel(BaseModel):
                     loss = ohem_loss(outputs.logits,
                                      labels.squeeze(-1),
                                      weights=cls_weights,
-                                     label_smoothing=self.label_smoothing,
-                                     epochnum=epoch)
+                                     label_smoothing=self.label_smoothing)
 
                 loss = loss / n_batches
                 scaler.scale(loss).backward()
@@ -453,8 +450,15 @@ class BertModel(BaseModel):
             self.save(f"{self.out_folder}/{self.experiment_name}{fold_id}")
 
     def predict(self,
-                x_test):
-        #TODO: Kullanılmıyorsa silelim.
+                x_test,
+                progress=False):
+        """
+        Get model predictions on given input
+
+        ---------
+        param x_test: List of inference texts
+        return: Predicted class ids and class-id-ordered prediction probabilities
+        """
         test_texts = x_test.to_list()  # list of validation texts
         test_encodings = self.tokenizer(test_texts,
                                         truncation=True,
@@ -475,14 +479,18 @@ class BertModel(BaseModel):
 
         all_preds = []
         all_probas = []
+
+        if progress:
+            test_loader = tqdm(test_loader)
+
         with torch.no_grad():
-            for batch in tqdm(test_loader):
+            for batch in test_loader:
                 input_ids, attention_mask = batch
                 input_ids = input_ids.to(self.device)
                 attention_mask = attention_mask.to(self.device)
                 outputs = self.model(input_ids, attention_mask=attention_mask)
                 logits = outputs.logits
-                probas = torch.nn.functional.softmax(logits)
+                probas = torch.nn.functional.softmax(logits, dim=1)
                 predictions = torch.argmax(logits, dim=1)
                 all_preds.extend(predictions.cpu().numpy())
                 all_probas.extend(probas.cpu().numpy())
@@ -494,7 +502,7 @@ class BertModel(BaseModel):
                  y_val):
         
         """
-        Evaluate the model after epoch completed.
+        Evaluate the model w.r.t. given ground truth.
         
         ---------
         param x_val: List of validation texts

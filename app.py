@@ -1,5 +1,6 @@
 # THIS SCRIPT IS PROVIDED BY THE ORGANIZATOR
 
+import time
 import re
 import pandas as pd
 import os
@@ -74,7 +75,7 @@ def auth(username,
         return False
 
 
-def predict(df:pd.DataFrame):
+def predict(df: pd.DataFrame):
     
     """
     Model inference for gradio app. 
@@ -83,7 +84,7 @@ def predict(df:pd.DataFrame):
     param input_df: input dataframe
     return: Dataframe with wanted columns.   
     """
-    
+
     df["is_offensive"] = 1
     df["target"] = "OTHER"
 
@@ -101,6 +102,7 @@ def predict(df:pd.DataFrame):
                                           prevent_bias=1)
         pred_classes, _ = case_unbiased_model.predict(df["proc_text"])
 
+
     # Class ID > Text
     for pred_i, pred in enumerate(pred_classes):
         pred_classes[pred_i] = TARGET_INV_DICT[pred] if pred in [0, 1, 2, 3, 4] else pred
@@ -117,11 +119,20 @@ def get_file(file):
     # For windows users, replace path seperator
     file_name = file.name.replace("\\", "/")
 
+    start_time = time.time()
+    print("-"*30)
+
     df = pd.read_csv(file_name, sep="|")
     print(f"Got {file_name}.\nIt consists of {len(df)} rows!")
 
     df = predict(df)
+
+    end_time = time.time()
+    print(f"Processing time: {np.round(end_time-start_time, 2)}s")
+    print("-" * 30)
+
     df.to_csv(output_file, index=False, sep="|")
+
     return (output_file)
 
 
