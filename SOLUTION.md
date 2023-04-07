@@ -106,16 +106,18 @@ Hem en iyi performansı gösterdiği, hem de diğer 4 çözüme karşı yek bir 
 
 [İlgili dökümanda](src/README.md) `Model-Data Unbiasing` bölümünde bahsettiğimiz model önyargılarının bazıları sonucu büyük ölçütte değiştiriyordu. Bu yüzden 3 farklı versiyon tasarlamaya karar verdik. Yukarıda belirtilen önişlemeleri yaptıktan sonra aldığımız sonuçlar ise aşağıdaki gibidir:
 
-|Model|F1-Macro|F1-OTHER|F1-INSULT|F1-RACIST|F1-SEXIST|F1-PROFANITY|Ortalama Fold Eğitim Süresi|
-|---|---|---|---|---|---|---|---|
-|toxic-dbmdz-bert-base-turkish-128k-uncased|95.58	|96.63	|92.16	|96.67	|96.43	|95.99	|64.02 +- 0.4s|
-|toxic-dbmdz-bert-base-turkish-128k-uncased-casing-unbiased|94.86	|95.38	|91.2	|95.94	|95.93	|95.87	|63.05 +- 0.43s|
-|toxic-dbmdz-bert-base-turkish-128k-uncased-fully-unbiased|93.36	|91.97	|89.29	|94.88	|94.86	|95.79	|93.81 +- 1.59s|
+| Model                                                                                                                                                 |F1-Macro|F1-OTHER|F1-INSULT|F1-RACIST|F1-SEXIST|F1-PROFANITY|Ortalama Fold Eğitim Süresi|
+|-------------------------------------------------------------------------------------------------------------------------------------------------------|---|---|---|---|---|---|---|
+| [toxic-dbmdz-bert-base-turkish-128k-uncased](https://huggingface.co/l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased)                                 |95.58	|96.63	|92.16	|96.67	|96.43	|95.99	|64.02 +- 0.4s|
+| [toxic-dbmdz-bert-base-turkish-128k-uncased-casing-unbiased](https://huggingface.co/l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased-casing-unbiased) |94.86	|95.38	|91.2	|95.94	|95.93	|95.87	|63.05 +- 0.43s|
+| [toxic-dbmdz-bert-base-turkish-128k-uncased-fully-unbiased](https://huggingface.co/l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased-fully-unbiased)                                                                                         |93.36	|91.97	|89.29	|94.88	|94.86	|95.79	|93.81 +- 1.59s|
 
 Malesef verinin geneline yayılmış bir yanlılık görüyoruz. Bunun sebebi verinin toplandığı kaynakların çeşitsizliği veya toplama zamanının darlığı olabilir. Model önyargısını azaltmak adına kullanığımız ekstra `OTHER` sınıfı verimizi [Ezgi Subaşı](https://github.com/ezgisubasi)'nın [buradaki](https://github.com/ezgisubasi/turkish-tweets-sentiment-analysis) repository'sinden edindik. Önyargıyı azaltmak adına yaptığımız her hamle eğitim seti genelinde aldığımız skoru düşürdü. Bu yüzden soldaki iki model kolunu yarışmada aktif tahminlerimiz için kullandık. Fakat model ürünleştirildiği takdirde sağdaki modelin kullanılmasının daha mantıklı olacağını öngörüyoruz.
 
+Yarışmada kullanılan modellere yukarıdaki tablodan tıklayarak ulaşabilirsiniz. HuggingFace geliştirme organizasyonumuza da [buradan](https://huggingface.co/l2reg) ulaşabilirsiniz.
+
 ## 2.4. Çözümün Servis Edilmesi
-Çözümü organizasyon tarafından verilmiş iskelet `Gradio` kodunu daha da geliştirerek sunmayı tercih ettik. Servis etme kısmında herhangi bir kısıt bulunmadığından çözümün olabildiğince sorunsuz çalışması ve şeffaf bir şekilde deneyimlenebilmesi için [HuggingFace](https://huggingface.co/spaces)'in ortam sağlayıcısını tercih ettik. Servis ettiğimiz uygulamaya aşağıdaki [buradan](https://huggingface.co/spaces/l2reg/Teknofest2023) ulaşılabilir. Çözüm, yarışma test süreci esnasında yukarıda da test donanımı olarak verilmiş donanımı barındıran bu sayfa üzerinde çalışacaktır. Sunucu verilen **12621** satırlık eğitim verisini **~38 saniye**de işlemektedir.
+Çözümü organizasyon tarafından verilmiş iskelet `Gradio` kodunu daha da geliştirerek sunmayı tercih ettik. Servis etme kısmında herhangi bir kısıt bulunmadığından çözümün olabildiğince sorunsuz çalışması ve şeffaf bir şekilde deneyimlenebilmesi için [HuggingFace](https://huggingface.co/spaces)'in ortam sağlayıcısını tercih ettik. Servis ettiğimiz uygulamaya [buradan](https://huggingface.co/spaces/l2reg/Teknofest2023) ulaşılabilir. Çözüm, yarışma test süreci esnasında yukarıda da test donanımı olarak verilmiş donanımı barındıran bu sayfa üzerinde çalışacaktır. Sunucu verilen **12621** satırlık eğitim verisini **~38 saniye**de işlemektedir.
 
 
 

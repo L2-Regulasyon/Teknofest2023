@@ -26,18 +26,15 @@ from src.models.bert_model import BertModel
 # model.set_device(device)
 
 # Competition Model
-model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased",
-                  auth_token=os.environ["model_token"])
+model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased")
 model.load()
 
 # Case-Unbiased Model
-case_unbiased_model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased-casing-unbiased",
-                                auth_token=os.environ["model_token"])
+case_unbiased_model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased-casing-unbiased")
 case_unbiased_model.load()
 
 # Fully-Unbiased Model
-fully_unbiased_model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased-fully-unbiased",
-                                 auth_token=os.environ["model_token"])
+fully_unbiased_model = BertModel(model_path="l2reg/toxic-dbmdz-bert-base-turkish-128k-uncased-fully-unbiased")
 fully_unbiased_model.load()
 
 
